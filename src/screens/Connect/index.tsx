@@ -73,6 +73,7 @@ const Connect = () => {
 								value={code}
 								onChange={(e) => setCode(e.target.value)}
 								placeholder="Insert Connection Code"
+								className="right"
 							/>
 							<button onClick={connectHandler}>Connect</button>
 						</div>
