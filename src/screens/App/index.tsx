@@ -1,7 +1,9 @@
+import { Link } from "react-router-dom";
+
 const App = () => {
 	return (
-		<div style={{ background: "#12192F" }}>
-			<span style={{ background: "#000D33", padding: "20px" }}>Span</span>
+		<div style={{ marginTop: "100px" }}>
+			<Link to={"/"}>Back to Connect</Link>
 		</div>
 	);
 };

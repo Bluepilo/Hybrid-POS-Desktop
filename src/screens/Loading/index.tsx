@@ -13,7 +13,7 @@ const Loading = () => {
 			setProgress((p) => {
 				if (p >= 100) {
 					clearInterval(id);
-					navigate("/app");
+					navigate("/app/pos/1");
 					return 100;
 				}
 				return p + 5;
