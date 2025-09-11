@@ -46,6 +46,7 @@ const Connect = () => {
 								textAlign: "center",
 								color: "#000",
 								fontWeight: 700,
+								marginTop: "20px",
 							}}
 						>
 							Connecting

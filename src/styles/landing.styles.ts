@@ -139,6 +139,7 @@ export const BgStyles = styled.div`
 		.others {
 			display: flex;
 			align-items: center;
+			justify-content: center;
 			margin-top: 20px;
 
 			p {
