@@ -3,6 +3,7 @@ import { CartTotal, SearchBtn } from "../../styles/pos.styles";
 import { TbTextScan2 } from "react-icons/tb";
 import { TableDiv } from "../../styles/table.styles";
 import EachCartList from "../List/EachCartList";
+import { TableArea } from "../../styles/basic.styles";
 
 const ListView = () => {
 	return (
@@ -22,7 +23,7 @@ const ListView = () => {
 					</SearchBtn>
 				</div>
 			</div>
-			<div className="flex-grow-1 overflow-auto mt-4">
+			<TableArea>
 				<div className="table-responsive h-100">
 					<TableDiv className="table mb-0">
 						<thead>
@@ -36,19 +37,34 @@ const ListView = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{Array.from({ length: 15 }).map((_, i) => (
+							{Array.from({ length: 10 }).map((_, i) => (
 								<EachCartList key={i} item={{}} />
 							))}
 						</tbody>
 					</TableDiv>
 				</div>
-			</div>
-			<CartTotal className="border-top bg-light p-3">
+			</TableArea>
+			<CartTotal>
 				<div className="total">
 					<div>
 						<span>Total Amount</span>
-						<strong>₦300,000</strong>
+						<strong style={{ color: "#FFB500", fontSize: "2rem" }}>
+							₦300,000
+						</strong>
 					</div>
+					<div>
+						<span>Total Discount</span>
+						<strong>₦3,000</strong>
+					</div>
+					<div>
+						<span>Add VAT</span>
+						<select>
+							<option value={""}>0%</option>
+						</select>
+					</div>
+				</div>
+				<div className="button">
+					<button disabled={true}>Proceed to Payment</button>
 				</div>
 			</CartTotal>
 		</div>

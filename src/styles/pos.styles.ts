@@ -23,15 +23,18 @@ export const PosTitleSearch = styled.div`
 			font-size: 1rem;
 			border-radius: 15px;
 			padding-left: 10px;
+			padding-right: 10px;
 			color: rgba(102, 102, 102, 1);
+			width: max-content;
 		}
 
 		span {
 			background: rgba(215, 215, 215, 1);
 			color: #000d33;
 			padding: 2px 16px;
-			margin-left: 20px;
+			margin-left: 10px;
 			border-radius: 10px;
+			font-weight: 600;
 		}
 	}
 `;
@@ -194,6 +197,8 @@ export const DisplayType = styled.div`
 			height: 40px;
 			border-radius: 15px;
 			outline: 0;
+			width: 100px;
+			padding-left: 5px;
 		}
 	}
 `;
@@ -419,9 +424,60 @@ export const CartDiscount = styled.div`
 `;
 
 export const CartTotal = styled.div`
-	/* padding-top: 15px;
-	padding-bottom: 20px;
+	position: sticky;
+	bottom: 0;
+	background: #fff;
+	z-index: 91;
+	padding: 10px 0;
 	display: flex;
 	align-items: center;
-	justify-content: space-between; */
+	justify-content: space-between;
+
+	.total {
+		background: #000d33;
+		color: #fff;
+		width: 70%;
+		padding: 20px 20px;
+		border-radius: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.85rem;
+
+		div {
+			display: flex;
+			align-items: center;
+
+			span {
+				margin-right: 10px;
+			}
+
+			select {
+				background: transparent;
+				color: #fff;
+				width: 60px;
+				border-radius: 15px;
+				height: 40px;
+				border: 1px solid #fff;
+				text-align: center;
+			}
+		}
+	}
+	.button {
+		display: flex;
+		align-items: flex-end;
+
+		button {
+			background: #000d33;
+			color: #fff;
+			padding: 12px 40px;
+			outline: 0;
+			border: 0;
+			border-radius: 20px;
+
+			&:disabled {
+				background: rgba(190, 190, 190, 1);
+			}
+		}
+	}
 `;

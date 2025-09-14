@@ -103,3 +103,10 @@ export const SideStyles = styled.div<{ $open: boolean }>`
 		}
 	}
 `;
+
+export const TableArea = styled.div`
+	flex-grow: 1;
+	overflow-y: auto;
+	padding-bottom: 80px;
+	margin-top: 20px;
+`;
