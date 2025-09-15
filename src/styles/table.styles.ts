@@ -96,3 +96,94 @@ export const TableDiv = styled.table`
 		}
 	}
 `;
+
+export const PaginateStyles = styled.div`
+	padding-top: 15px;
+	padding-bottom: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	.hint {
+		display: flex;
+		align-items: center;
+
+		@media (max-width: 991px) {
+			display: none;
+		}
+
+		button {
+			background: none;
+			outline: 0;
+			font-size: 0.8rem;
+			padding: 5px 15px;
+			border-radius: 15px;
+			display: flex;
+			align-items: center;
+
+			img {
+				height: 20px;
+			}
+
+			span {
+				margin-left: 4px;
+			}
+		}
+
+		.count {
+			margin-left: 5px;
+			background: #d7d7d7;
+			margin-left: 10px;
+			color: #000d33;
+			border-radius: 40%;
+			font-weight: 700;
+			font-size: 0.8rem;
+			padding: 8px 10px;
+		}
+	}
+
+	.pages {
+		display: flex;
+		align-items: center;
+
+		.select {
+			select {
+				border: 1px solid #666666;
+				outline: 0;
+				height: 38px;
+				border-radius: 4px;
+				padding-left: 5px;
+				margin-right: 5px;
+				color: #666;
+			}
+			span {
+				color: #666;
+				font-size: 0.9rem;
+			}
+		}
+		.clicks {
+			display: flex;
+			align-items: center;
+			margin-left: 20px;
+
+			button {
+				background: none;
+				outline: 0;
+				border: 0;
+				display: inline-flex;
+				align-items: center;
+				margin-left: 6px;
+
+				&.active {
+					background: #91ffff59;
+				}
+			}
+
+			&.keys {
+				@media (max-width: 991px) {
+					display: none;
+				}
+			}
+		}
+	}
+`;
