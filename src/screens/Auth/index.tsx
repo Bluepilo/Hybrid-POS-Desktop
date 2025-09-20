@@ -13,7 +13,7 @@ const Auth = () => {
 	const [showPassword, setShowPassword] = useState(false);
 
 	const loginHandler = () => {
-		navigate("/load");
+		navigate("/connect");
 	};
 
 	return (

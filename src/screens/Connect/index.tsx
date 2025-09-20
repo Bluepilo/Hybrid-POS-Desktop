@@ -22,7 +22,7 @@ const Connect = () => {
 				setProgress((p) => {
 					if (p >= 100) {
 						clearInterval(id);
-						navigate("/auth");
+						navigate("/load");
 						return 100;
 					}
 					return p + 5;

@@ -1,12 +1,15 @@
 import { FaCircleCheck } from "react-icons/fa6";
 import { HiDotsVertical } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 const EachSales = ({}: { item: any }) => {
 	return (
 		<tr>
 			<td>Aug 12, 2025</td>
 			<td>Classic T-Shirt</td>
-			<td>FJJJJDG878G</td>
+			<td className="link">
+				<Link to={"12"}>FJJJJDG878G</Link>
+			</td>
 			<td>John Bosko</td>
 			<td>₦30,000</td>
 			<td>Hybrid App</td>

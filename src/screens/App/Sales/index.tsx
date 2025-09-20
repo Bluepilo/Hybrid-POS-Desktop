@@ -1,5 +1,7 @@
 import EachSales from "../../../components/List/EachSales";
 import Paginate from "../../../components/Paginate";
+import SalesFilter from "../../../components/Sales/SalesFilter";
+import Stats from "../../../components/Sales/Stats";
 import { TableArea } from "../../../styles/basic.styles";
 import { PosTitleSearch } from "../../../styles/pos.styles";
 import { TableDiv } from "../../../styles/table.styles";
@@ -16,9 +18,8 @@ const Sales = () => {
 					</select>
 				</div>
 			</PosTitleSearch>
-			<div>Sales Stats</div>
-			<div>Filters</div>
-			<div>Search</div>
+			<Stats />
+			<SalesFilter />
 			<TableArea>
 				<div className="table-responsive h-100">
 					<TableDiv className="table mb-0">

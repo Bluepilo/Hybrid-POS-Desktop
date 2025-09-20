@@ -34,6 +34,22 @@ export const TableDiv = styled.table`
 		}
 	}
 
+	tfoot td {
+		background: #000d33;
+		color: #fff;
+		z-index: 2;
+		height: 3.5rem;
+		vertical-align: middle;
+		text-transform: uppercase;
+
+		&:first-child {
+			border-bottom-left-radius: 0.5rem;
+		}
+		&:last-child {
+			border-bottom-right-radius: 0.5rem;
+		}
+	}
+
 	tbody {
 		td {
 			height: 3rem;
@@ -91,6 +107,20 @@ export const TableDiv = styled.table`
 					border-radius: 6px;
 					border: 1.5px solid #fff;
 					box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+				}
+			}
+
+			&.status {
+				span {
+					background: rgba(244, 67, 54, 0.15);
+					color: rgba(244, 67, 54, 1);
+					padding: 5px 15px;
+					border-radius: 5px;
+					font-size: 0.8rem;
+					&.active {
+						background: rgba(76, 175, 80, 0.13);
+						color: rgba(76, 175, 80, 1);
+					}
 				}
 			}
 		}
