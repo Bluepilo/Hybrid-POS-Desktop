@@ -28,6 +28,8 @@ export const HeaderStyles = styled.div`
 		.tab {
 			display: flex;
 			margin-left: 30px;
+			/* max-width: 50%; */
+			/* overflow-x: hidden; */
 
 			.select {
 				border: 1px solid #000d33;
@@ -42,14 +44,23 @@ export const HeaderStyles = styled.div`
 				align-items: center;
 
 				&:hover {
-					svg {
-						display: inline-block;
+					.svg {
+						display: inline-flex;
 					}
 				}
-
-				svg {
+				.svg {
+					height: 20px;
+					width: 20px;
+					background: #fff;
+					border-radius: 50%;
 					display: none;
+					justify-content: center;
+					align-items: center;
 					margin-left: 5px;
+
+					svg {
+						color: #000d33;
+					}
 				}
 
 				&.active {

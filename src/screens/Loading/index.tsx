@@ -2,18 +2,31 @@ import { useEffect, useState } from "react";
 import { LoadingScreen } from "../../styles/landing.styles";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/images/bluepilo.svg";
+import { generateId } from "../../utils/data";
+import { useAppDispatch } from "../../utils/hooks";
+import { createCart } from "../../redux/cart/cartSlice";
 
 const Loading = () => {
+	const dispatch = useAppDispatch();
+
 	const navigate = useNavigate();
 
 	const [progress, setProgress] = useState(0);
 
+	const goToDashboard = () => {
+		const id = generateId();
+		dispatch(createCart(id));
+		navigate(`/app/pos/${id}`);
+	};
+
 	useEffect(() => {
+		let ran = false;
 		const id = setInterval(() => {
 			setProgress((p) => {
-				if (p >= 100) {
+				if (p >= 100 && !ran) {
+					ran = true;
 					clearInterval(id);
-					navigate("/app/pos/1");
+					goToDashboard();
 					return 100;
 				}
 				return p + 5;
