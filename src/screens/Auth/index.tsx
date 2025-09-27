@@ -1,22 +1,35 @@
 import { BgStyles } from "../../styles/landing.styles";
 import Logo from "../../assets/images/bluepilo.svg";
 import { FaQuestionCircle, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlexBetween } from "../../styles/basic.styles";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
+import { login } from "../../redux/auth/authSlice";
+import { Spinner } from "react-bootstrap";
 
 const Auth = () => {
+	const dispatch = useAppDispatch();
+
+	const { load, user } = useAppSelector((state) => state.auth);
+
 	const navigate = useNavigate();
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 
+	useEffect(() => {
+		if (user?.id) {
+			navigate("/connect");
+		}
+	}, [user]);
+
 	const loginHandler = () => {
-		navigate("/connect");
+		dispatch(login({ email, password }));
 	};
 
-	return (
+	return !user?.id ? (
 		<BgStyles>
 			<div className="log-box">
 				<div className="logo">
@@ -40,6 +53,7 @@ const Auth = () => {
 							type="text"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
+							disabled={load}
 						/>
 					</div>
 					<div>
@@ -59,15 +73,27 @@ const Auth = () => {
 								<span>{!showPassword ? "Show" : "Hide"} </span>
 							</button>
 						</FlexBetween>
-
 						<input
 							type={showPassword ? "text" : "password"}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
+							disabled={load}
 						/>
 					</div>
-					<button className="wide" onClick={loginHandler}>
-						Sign In
+					<button
+						className="wide"
+						onClick={loginHandler}
+						disabled={load}
+					>
+						{load && (
+							<Spinner
+								animation="border"
+								color={"#FFF"}
+								style={{ marginRight: "10px" }}
+								size="sm"
+							/>
+						)}
+						<span>Sign In</span>
 					</button>
 				</div>
 				<div className="others">
@@ -78,6 +104,8 @@ const Auth = () => {
 				</div>
 			</div>
 		</BgStyles>
+	) : (
+		<></>
 	);
 };
 
