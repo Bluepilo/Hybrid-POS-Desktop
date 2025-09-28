@@ -11,6 +11,7 @@ export interface CartItemType {
 	status: string;
 	discount: number;
 	products: Product[];
+	proceed?: boolean;
 }
 
 const cartItemType: CartItemType[] = [];

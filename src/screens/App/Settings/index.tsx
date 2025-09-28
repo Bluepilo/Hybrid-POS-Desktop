@@ -2,8 +2,24 @@ import { BsCloudUpload } from "react-icons/bs";
 import Button from "../../../components/Button";
 import { CardBox, InfoBox, SyncBox } from "../../../styles/basic.styles";
 import { IoMdRefresh } from "react-icons/io";
+import { upsertProducts } from "../../../utils/db";
+import appService from "../../../redux/app/appService";
+import { useAppSelector } from "../../../utils/hooks";
 
 const Settings = () => {
+	const { shopInfo } = useAppSelector((state) => state.auth);
+
+	const syncData = async () => {
+		try {
+			let res = await appService.fetchProducts(shopInfo?.id);
+			if (res?.rows?.length > 0) {
+				await upsertProducts(res.rows);
+			}
+		} catch (err) {
+			console.log(err, "eeeee");
+		}
+	};
+
 	return (
 		<div>
 			<h3
@@ -58,7 +74,7 @@ const Settings = () => {
 						<div className="col-md-6">
 							<Button
 								name="Disconnect from Online Store"
-								onClick={() => console.log("")}
+								onClick={syncData}
 								border="red"
 								bg="red"
 							/>
@@ -101,7 +117,7 @@ const Settings = () => {
 							<div className="prog">
 								<div className="line" />
 							</div>
-							<button>
+							<button onClick={syncData}>
 								<IoMdRefresh size={20} color="#FFF" />
 							</button>
 						</SyncBox>

@@ -3,33 +3,55 @@ import { BodyScroll, SearchBtn } from "../../styles/pos.styles";
 import { TbTextScan2 } from "react-icons/tb";
 import EachProduct from "../List/EachProduct";
 import Cart from "./Cart";
+import { useAppSelector } from "../../utils/hooks";
+import { useParams } from "react-router-dom";
 
 const ImageView = () => {
+	const params = useParams();
+
+	const { products } = useAppSelector((state) => state.app);
+
+	const { cartItems } = useAppSelector((state) => state.cart);
+
+	const productsInCart =
+		cartItems.find((cart) => cart.cartId === params?.tabId)?.products || [];
+
 	return (
 		<div className="row">
-			<div className="col-8">
+			<div className={`col-${productsInCart.length > 0 ? "8" : "12"}`}>
 				<SearchBtn>
 					<div className="input">
 						<input type="text" placeholder="Search Name" />
 						<IoIosSearch size={18} color="#333" />
 					</div>
-
 					<button>
 						<TbTextScan2 size={20} />
 						<span>Scan Barcode</span>
 					</button>
 				</SearchBtn>
 				<BodyScroll className="mt-3 row">
-					{Array.from({ length: 12 }).map((_, i) => (
-						<div className="col-lg-3 col-md-4 col-sm-6" key={i}>
-							<EachProduct product={{}} />
-						</div>
-					))}
+					{Array.isArray(products) &&
+						products.length > 0 &&
+						products.map((product) => (
+							<div
+								className={`col-lg-${
+									productsInCart.length > 0 ? "3" : "2"
+								} col-md-4 col-sm-6`}
+								key={product.productId}
+							>
+								<EachProduct
+									product={product}
+									cartId={params?.tabId}
+								/>
+							</div>
+						))}
 				</BodyScroll>
 			</div>
-			<div className="col-4">
-				<Cart />
-			</div>
+			{productsInCart.length > 0 && (
+				<div className="col-4">
+					<Cart products={productsInCart} />
+				</div>
+			)}
 		</div>
 	);
 };

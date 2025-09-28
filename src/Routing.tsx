@@ -10,6 +10,7 @@ import Stocks from "./screens/App/Stocks";
 import Settings from "./screens/App/Settings";
 import SalesDetails from "./screens/App/Sales/SalesDetails";
 import CustomerDetails from "./screens/App/Customers/CustomerDetails";
+import POSRedirect from "./screens/App/POS/POSRedirect";
 
 const Routing = () => {
 	return (
@@ -19,6 +20,7 @@ const Routing = () => {
 				<Route path="/connect" element={<Connect />} />
 				<Route path="/load" element={<Loading />} />
 				<Route path="/app" element={<AppLayout />}>
+					<Route path="pos" element={<POSRedirect />} />
 					<Route path="pos/:tabId" element={<POS />} />
 					<Route path="sales" element={<Sales />} />
 					<Route path="sales/:id" element={<SalesDetails />} />

@@ -3,11 +3,24 @@ import { FaImage, FaListUl } from "react-icons/fa";
 import { useState } from "react";
 import ImageView from "../../../components/POS/ImageView";
 import ListView from "../../../components/POS/ListView";
+import { useAppSelector } from "../../../utils/hooks";
+import { useParams } from "react-router-dom";
+import CompleteSale from "./CompleteSale";
 
 const POS = () => {
+	const params = useParams();
+
 	const [imageDisplay, setImageDisplay] = useState(true);
 
-	return (
+	const { products } = useAppSelector((state) => state.app);
+
+	const { cartItems } = useAppSelector((state) => state.cart);
+
+	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
+
+	return cartInfo?.proceed ? (
+		<CompleteSale />
+	) : (
 		<div className="d-flex flex-column h-100">
 			<div className="row mt-3">
 				<div className="col-8">
@@ -19,7 +32,7 @@ const POS = () => {
 								<option value={"subdealer"}>Subdealer</option>
 							</select>
 							<h1>Customer</h1>
-							<span>3</span>
+							<span>{products?.length}</span>
 						</div>
 					</PosTitleSearch>
 				</div>

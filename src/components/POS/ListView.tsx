@@ -4,8 +4,18 @@ import { TbTextScan2 } from "react-icons/tb";
 import { TableDiv } from "../../styles/table.styles";
 import EachCartList from "../List/EachCartList";
 import { TableArea } from "../../styles/basic.styles";
+import { useParams } from "react-router-dom";
+import { useAppSelector } from "../../utils/hooks";
+import { numberWithCommas } from "../../utils/currency";
 
 const ListView = () => {
+	const params = useParams();
+
+	const { cartItems } = useAppSelector((state) => state.cart);
+
+	const productsInCart =
+		cartItems.find((cart) => cart.cartId === params?.tabId)?.products || [];
+
 	return (
 		<div className="d-flex flex-column h-100">
 			<div className="row">
@@ -37,8 +47,12 @@ const ListView = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{Array.from({ length: 10 }).map((_, i) => (
-								<EachCartList key={i} item={{}} />
+							{productsInCart.map((product) => (
+								<EachCartList
+									key={product.id}
+									item={product}
+									cartId={params?.tabId}
+								/>
 							))}
 						</tbody>
 					</TableDiv>
@@ -49,12 +63,18 @@ const ListView = () => {
 					<div>
 						<span>Total Amount</span>
 						<strong style={{ color: "#FFB500", fontSize: "2rem" }}>
-							₦300,000
+							₦
+							{numberWithCommas(
+								productsInCart.reduce(
+									(a: any, b: any) => a + b.price,
+									0
+								)
+							)}
 						</strong>
 					</div>
 					<div>
 						<span>Total Discount</span>
-						<strong>₦3,000</strong>
+						<strong>₦0</strong>
 					</div>
 					<div>
 						<span>Add VAT</span>
@@ -64,7 +84,9 @@ const ListView = () => {
 					</div>
 				</div>
 				<div className="button">
-					<button disabled={true}>Proceed to Payment</button>
+					<button disabled={productsInCart.length > 0 ? false : true}>
+						Proceed to Payment
+					</button>
 				</div>
 			</CartTotal>
 		</div>

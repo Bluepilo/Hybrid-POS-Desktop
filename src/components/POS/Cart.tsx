@@ -1,31 +1,63 @@
+import { useParams } from "react-router-dom";
+import { updateCartField } from "../../redux/cart/cartSlice";
 import { CartDisplay, VatBtn } from "../../styles/pos.styles";
+import { numberWithCommas } from "../../utils/currency";
+import { useAppDispatch } from "../../utils/hooks";
 import EachCart from "../List/EachCart";
 
-const Cart = () => {
+const Cart = ({ products }: { products: any }) => {
+	const params = useParams();
+
+	const dispatch = useAppDispatch();
+
+	const proceedHandler = () => {
+		dispatch(
+			updateCartField({
+				cartId: params?.tabId || "",
+				value: true,
+				field: "proceed",
+			})
+		);
+	};
+
 	return (
 		<CartDisplay>
 			<div className="cart">
 				<div className="items">
-					<EachCart item={{}} />
-					<EachCart item={{}} />
-					<EachCart item={{}} />
-					<EachCart item={{}} />
-					<EachCart item={{}} />
+					{products.map((product: any) => (
+						<EachCart item={product} key={product.id} />
+					))}
 				</div>
 				<div className="bttm-pos">
 					<div className="yellow">
 						<div>
 							<span>Total Discount</span>
-							<strong>₦3,000</strong>
+							<strong>₦0</strong>
 						</div>
 						<div>
 							<span>Total Amount Before Discount</span>
-							<strong>₦500,000</strong>
+							<strong>
+								₦
+								{numberWithCommas(
+									products.reduce(
+										(a: any, b: any) => a + b.price,
+										0
+									)
+								)}
+							</strong>
 						</div>
 					</div>
 					<div className="dark">
 						<span>Total Amount</span>
-						<strong>₦500,000</strong>
+						<strong>
+							₦
+							{numberWithCommas(
+								products.reduce(
+									(a: any, b: any) => a + b.price,
+									0
+								)
+							)}
+						</strong>
 					</div>
 				</div>
 			</div>
@@ -36,7 +68,12 @@ const Cart = () => {
 						<option value={""}>0%</option>
 					</select>
 				</div>
-				<button disabled={true}>Proceed to Payment</button>
+				<button
+					onClick={proceedHandler}
+					disabled={products.length > 0 ? false : true}
+				>
+					Proceed to Payment
+				</button>
 			</VatBtn>
 		</CartDisplay>
 	);

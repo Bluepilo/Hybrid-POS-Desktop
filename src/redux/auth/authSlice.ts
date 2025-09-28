@@ -5,6 +5,7 @@ import { displayError } from "../../utils/display";
 const initialState = {
 	user: null as any,
 	load: false,
+	shopInfo: null as any,
 };
 
 export const login = createAsyncThunk(
@@ -14,6 +15,25 @@ export const login = createAsyncThunk(
 			const res = await authService.login(data);
 			localStorage.setItem("@accesstoken", res?.accessToken);
 			return res;
+		} catch (error) {
+			const message = displayError(error, true);
+			return thunkAPI.rejectWithValue(message);
+		}
+	}
+);
+
+export const connectShop = createAsyncThunk(
+	"auth/connect",
+	async (_, thunkAPI: any) => {
+		try {
+			const res = await authService.connectShop();
+			console.log(res, "RES");
+			if (Array.isArray(res) && res.length > 0) {
+				return res[0];
+			} else {
+				displayError("No Shop is connected.", true);
+				return {};
+			}
 		} catch (error) {
 			const message = displayError(error, true);
 			return thunkAPI.rejectWithValue(message);
@@ -36,9 +56,10 @@ export const authSlice = createSlice({
 			state.load = false;
 		},
 		logoutFromStorage: (state) => {
-			localStorage.removeItem("@savedtoken");
+			localStorage.removeItem("@accesstoken");
 			state.user = null;
 			state.load = false;
+			state.shopInfo = null;
 		},
 	},
 	extraReducers: (builder) => {
@@ -50,6 +71,16 @@ export const authSlice = createSlice({
 			state.user = action.payload.user;
 		});
 		builder.addCase(login.rejected, (state) => {
+			state.load = false;
+		});
+		builder.addCase(connectShop.pending, (state) => {
+			state.load = true;
+		});
+		builder.addCase(connectShop.fulfilled, (state, action) => {
+			state.load = false;
+			state.shopInfo = action.payload;
+		});
+		builder.addCase(connectShop.rejected, (state) => {
 			state.load = false;
 		});
 	},

@@ -17,7 +17,7 @@ const logout = async () => {
 };
 
 const connectShop = async () => {
-	const { data } = await apiRequest("baseUrl").post(`/global/a`, {});
+	const { data } = await apiRequest("baseUrl").get(`/shop/all?all=true`);
 	return data?.data;
 };
 

@@ -88,9 +88,16 @@ export const ProductStyle = styled.div`
 	padding: 10px;
 	margin-bottom: 20px;
 	border-radius: 20px;
+	cursor: pointer;
 
 	.img {
 		position: relative;
+
+		img {
+			width: 100%;
+			height: 120px;
+			border-radius: 4px;
+		}
 
 		span {
 			position: absolute;

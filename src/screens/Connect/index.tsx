@@ -4,16 +4,28 @@ import { FaQuestionCircle } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import ProgressBar from "../../components/ProgressBar";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
+import { connectShop } from "../../redux/auth/authSlice";
+import { Spinner } from "react-bootstrap";
 
 const Connect = () => {
 	const navigate = useNavigate();
+
+	const dispatch = useAppDispatch();
+
+	const { load } = useAppSelector((state) => state.auth);
 
 	const [code, setCode] = useState("");
 	const [connecting, setConnecting] = useState(false);
 	const [progress, setProgress] = useState(0);
 
-	const connectHandler = () => {
-		setConnecting(true);
+	const connectHandler = async () => {
+		if (code) {
+			let res = await dispatch(connectShop()).unwrap();
+			if (res?.id) {
+				setConnecting(true);
+			}
+		}
 	};
 
 	useEffect(() => {
@@ -76,7 +88,17 @@ const Connect = () => {
 								placeholder="Insert Connection Code"
 								className="right"
 							/>
-							<button onClick={connectHandler}>Connect</button>
+							<button onClick={connectHandler} disabled={load}>
+								{load && (
+									<Spinner
+										animation="border"
+										color={"#FFF"}
+										style={{ marginRight: "10px" }}
+										size="sm"
+									/>
+								)}
+								<span>Connect</span>
+							</button>
 						</div>
 						<div className="others">
 							<p>You do not have an account?</p>

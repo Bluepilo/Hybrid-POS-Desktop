@@ -1,17 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LoadingScreen } from "../../styles/landing.styles";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/images/bluepilo.svg";
 import { generateId } from "../../utils/data";
-import { useAppDispatch } from "../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { createCart } from "../../redux/cart/cartSlice";
+import { displayError } from "../../utils/display";
+import appService from "../../redux/app/appService";
+import { upsertProducts } from "../../utils/db";
 
 const Loading = () => {
 	const dispatch = useAppDispatch();
 
 	const navigate = useNavigate();
 
+	const { shopInfo } = useAppSelector((state) => state.auth);
+
 	const [progress, setProgress] = useState(0);
+
+	let id = useRef<any>(null);
 
 	const goToDashboard = () => {
 		const id = generateId();
@@ -20,20 +27,39 @@ const Loading = () => {
 	};
 
 	useEffect(() => {
+		uploadProducts();
+		return () => clearInterval(id.current);
+	}, []);
+
+	const uploadProducts = async () => {
+		try {
+			let res = await appService.fetchProducts(shopInfo?.id);
+			if (res?.rows?.length > 0) {
+				await upsertProducts(res.rows);
+				runInterval();
+			}
+		} catch (err) {
+			displayError(
+				"There was an error updating your stocks. Please Contact Admin",
+				true
+			);
+		}
+	};
+
+	const runInterval = () => {
 		let ran = false;
-		const id = setInterval(() => {
+		id.current = setInterval(() => {
 			setProgress((p) => {
 				if (p >= 100 && !ran) {
 					ran = true;
-					clearInterval(id);
+					clearInterval(id.current);
 					goToDashboard();
 					return 100;
 				}
 				return p + 5;
 			});
 		}, 500);
-		return () => clearInterval(id);
-	}, []);
+	};
 
 	return (
 		<LoadingScreen val={progress}>
