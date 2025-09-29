@@ -7,11 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { login } from "../../redux/auth/authSlice";
 import { Spinner } from "react-bootstrap";
+import { generateId } from "../../utils/data";
 
 const Auth = () => {
 	const dispatch = useAppDispatch();
 
-	const { load, user } = useAppSelector((state) => state.auth);
+	const { load, user, shopInfo } = useAppSelector((state) => state.auth);
+	const { cartItems } = useAppSelector((state) => state.cart);
 
 	const navigate = useNavigate();
 
@@ -20,13 +22,23 @@ const Auth = () => {
 	const [showPassword, setShowPassword] = useState(false);
 
 	useEffect(() => {
-		if (user?.id) {
-			navigate("/connect");
-		}
+		nextNav();
 	}, [user]);
 
 	const loginHandler = () => {
 		dispatch(login({ email, password }));
+	};
+
+	const nextNav = () => {
+		if (user?.id) {
+			if (shopInfo?.id) {
+				const id = generateId();
+				const posId = cartItems?.length > 0 ? cartItems[0].cartId : id;
+				navigate(`/app/pos/${posId}`);
+			} else {
+				navigate("/connect");
+			}
+		}
 	};
 
 	return !user?.id ? (

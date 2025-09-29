@@ -579,3 +579,24 @@ export const SyncBox = styled.div`
 		}
 	}
 `;
+
+export const UploadContainer = styled.label`
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	background: rgba(255, 199, 39, 1);
+	color: rgba(38, 50, 56, 1);
+	font-size: 0.9rem;
+	font-weight: 500;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: background 0.3s ease;
+`;
+
+export const CoverScroll = styled.div`
+	height: 100dvh;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-bottom: 50px;
+`;

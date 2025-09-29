@@ -19,7 +19,7 @@ const POS = () => {
 	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
 
 	return cartInfo?.proceed ? (
-		<CompleteSale />
+		<CompleteSale cartId={params?.tabId} />
 	) : (
 		<div className="d-flex flex-column h-100">
 			<div className="row mt-3">

@@ -14,8 +14,16 @@ const InputField = ({
 	placeholder,
 	options,
 	removeShowBtn,
+	multi,
 }: {
-	inputType: "text" | "number" | "password" | "email" | "select" | "tel";
+	inputType:
+		| "text"
+		| "number"
+		| "password"
+		| "email"
+		| "select"
+		| "tel"
+		| "date";
 	value: string;
 	setValue: (arg: string) => void;
 	label?: string;
@@ -27,6 +35,7 @@ const InputField = ({
 	placeholder?: string;
 	options?: { value: string; label: string }[];
 	removeShowBtn?: boolean;
+	multi?: boolean;
 }) => {
 	return (
 		<InputContainer style={{ marginBottom: noMargin ? "0" : "20px" }}>
@@ -64,6 +73,14 @@ const InputField = ({
 							<option value={option.value}>{option.label}</option>
 						))}
 				</select>
+			) : multi ? (
+				<textarea
+					value={value}
+					onChange={(e) => setValue(e.target.value)}
+					required={required}
+					disabled={disabled}
+					placeholder={placeholder || ""}
+				/>
 			) : (
 				<input
 					type={inputType}

@@ -488,3 +488,89 @@ export const CartTotal = styled.div`
 		}
 	}
 `;
+
+export const SelectedCustomerStyle = styled.div`
+	h5,
+	p,
+	h6 {
+		padding: 0;
+		margin: 0;
+	}
+
+	.box1 {
+		background: #000;
+		border-radius: 20px;
+		display: flex;
+		justify-content: space-between;
+
+		.first,
+		.second {
+			padding: 12px 20px;
+			width: 50%;
+		}
+
+		.first {
+			p {
+				color: #fff;
+				font-size: 1rem;
+			}
+			p:last-child {
+				color: rgba(255, 199, 39, 1);
+			}
+		}
+
+		.second {
+			background: rgba(255, 199, 39, 1);
+			border-radius: 20px;
+			padding: 20px;
+			display: flex;
+			align-items: center;
+
+			span {
+				font-size: 0.85rem;
+				margin-right: 20px;
+			}
+			h5 {
+				font-weight: bold;
+			}
+		}
+	}
+
+	.box2 {
+		background: rgba(255, 199, 39, 1);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		color: #000;
+		padding: 12px 20px;
+		border-radius: 20px;
+
+		p {
+			font-size: 0.7rem;
+		}
+	}
+`;
+
+export const ViewTotal = styled.div`
+	border: 1.5px solid #000;
+	padding: 20px;
+	border-radius: 20px;
+	display: flex;
+	align-items: center;
+
+	h5,
+	h6 {
+		padding: 0;
+		margin: 0;
+		color: #000;
+	}
+
+	h6 {
+		width: 150px;
+		font-size: 0.9rem;
+	}
+
+	h5 {
+		font-weight: bolder;
+	}
+`;

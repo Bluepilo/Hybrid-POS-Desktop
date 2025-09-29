@@ -29,7 +29,8 @@ export const InputContainer = styled.div`
 	}
 
 	input,
-	select {
+	select,
+	textarea {
 		width: 100%;
 		border: 1px solid #66666659;
 		outline: 0;
@@ -38,6 +39,10 @@ export const InputContainer = styled.div`
 		padding-left: 20px;
 		height: 45px;
 		font-size: 0.9rem;
+	}
+
+	textarea {
+		height: 80px;
 	}
 `;
 
