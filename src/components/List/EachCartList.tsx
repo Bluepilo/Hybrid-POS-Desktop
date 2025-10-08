@@ -13,6 +13,7 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 	const dispatch = useAppDispatch();
 
 	const [value, setValue] = useState(`${item.quantity}`);
+	const [discount, setDiscount] = useState("");
 
 	const updateHandler = (val: number) => {
 		if (!isNaN(val)) {
@@ -61,7 +62,10 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 						<span>%</span>
 						<FaCaretDown />
 					</button>
-					<input value={"0"} />
+					<input
+						value={discount}
+						onChange={(e) => setDiscount(e.target.value)}
+					/>
 				</CartDiscount>
 			</td>
 			<td>₦{numberWithCommas(item.price * item.quantity)}</td>

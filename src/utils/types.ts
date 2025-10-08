@@ -12,6 +12,7 @@ export interface CartItemType {
 	discount: number;
 	products: Product[];
 	proceed?: boolean;
+	isSubdealer?: boolean;
 }
 
 const cartItemType: CartItemType[] = [];

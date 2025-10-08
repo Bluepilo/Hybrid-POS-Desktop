@@ -25,10 +25,14 @@ const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 		<ProductStyle className="shadow" onClick={cartHandler}>
 			<div className="img">
 				<img src={product.image || Img} className="img-fluid" />
-				<span>200</span>
+				<span>{product.totalStock}</span>
 			</div>
 			<div className="content">
-				<div className="status">In Stock</div>
+				<div className="status">
+					{product.totalStock > 0 || product.isService
+						? "In Stock"
+						: "Out of Stock"}
+				</div>
 				<h5>{product.name}</h5>
 				<h6>NGN {numberWithCommas(product.price)}</h6>
 			</div>

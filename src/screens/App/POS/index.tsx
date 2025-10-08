@@ -41,9 +41,8 @@ const POS = () => {
 						<div className="select">
 							<span>Select Sales Type</span>
 							<select>
-								<option value={"Advance Sales"}>
-									Advance Sales
-								</option>
+								<option value={"normal"}>Normal</option>
+								<option value={"advance"}>Advance</option>
 							</select>
 						</div>
 						<div className="display">

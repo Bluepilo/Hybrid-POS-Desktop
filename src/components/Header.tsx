@@ -17,6 +17,7 @@ const Header = () => {
 
 	const navigate = useNavigate();
 
+	const { user } = useAppSelector((state) => state.auth);
 	const { cartItems } = useAppSelector((state) => state.cart);
 
 	const [openMenu, setOpenMenu] = useState(false);
@@ -74,7 +75,9 @@ const Header = () => {
 						<div className="name">
 							<span className="status" />
 							<b>Staff:</b>
-							<span>Alex Johnson</span>
+							<span>
+								{user?.firstName} {user?.lastName}
+							</span>
 						</div>
 						<div className="time">Sept 10, 2025, 05:00 PM</div>
 					</div>

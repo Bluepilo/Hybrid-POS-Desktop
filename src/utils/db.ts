@@ -9,7 +9,10 @@ export async function initDB() {
 		// Creates (or opens) a SQLite DB file in app’s local data dir
 		db = await Database.load("sqlite:app.db");
 
-		await db.execute(`DROP TABLE IF EXISTS products`);
+		// await db.execute(`DROP TABLE IF EXISTS products`);
+		// await db.execute(`DROP TABLE IF EXISTS customers`);
+		// await db.execute(`DROP TABLE IF EXISTS shops`);
+		// await db.execute(`DROP TABLE IF EXISTS sales`);
 
 		await db.execute(`
       CREATE TABLE IF NOT EXISTS products (
@@ -17,7 +20,35 @@ export async function initDB() {
 		productId INTEGER UNIQUE,
         name TEXT,
         price REAL,
-        image TEXT
+        image TEXT,
+		totalStock INT,
+		isService BOOLEAN
+      )
+    `);
+
+		await db.execute(`
+      CREATE TABLE IF NOT EXISTS customers (
+        id INTEGER PRIMARY KEY,
+		customerId INTEGER UNIQUE,
+        name TEXT,
+        email TEXT,
+        balance REAL,
+		creditLimit REAL,
+		phone TEXT,
+		isSubdealer BOOLEAN
+      )
+    `);
+
+		await db.execute(`
+      CREATE TABLE IF NOT EXISTS sales (
+        id INTEGER PRIMARY KEY,
+		shopId INTEGER,
+        actualAmountPaid REAL,
+        amountExpected REAL,
+        amountPaid REAL,
+		customerId INT,
+		uniqueRef TEXT,
+		generatedRef TEXT
       )
     `);
 		console.log("Table Created and DB Initialized.");
@@ -60,13 +91,20 @@ export const upsertProducts = async (products: any[]) => {
 				for (const p of products) {
 					// This will insert new or replace existing based on id
 					await db.execute(
-						`INSERT INTO products (productId, name, price, image)
-							VALUES (?1, ?2, ?3, ?4)
+						`INSERT INTO products (productId, name, price, image, isService, totalStock)
+							VALUES (?1, ?2, ?3, ?4, ?5, ?6)
 							ON CONFLICT(productId) DO UPDATE SET
 								name = excluded.name,
 								price = excluded.price,
 								image = excluded.image`,
-						[p.id, p.name, parseFloat(p.price), p.image || null]
+						[
+							p.id,
+							p.summary,
+							parseFloat(p.price),
+							p.image || null,
+							p.isService,
+							Number(p.totalStock),
+						]
 					);
 				}
 				await db.execute("COMMIT");
@@ -78,6 +116,48 @@ export const upsertProducts = async (products: any[]) => {
 		}
 	} catch (err) {
 		console.log(err, "From Uploading Products");
+		throw err;
+	}
+};
+
+export const upsertCustomers = async (
+	customers: any[],
+	isSubdealer: boolean
+) => {
+	try {
+		const db = getDB();
+		if (db) {
+			await db.execute("BEGIN TRANSACTION");
+			try {
+				for (const p of customers) {
+					// This will insert new or replace existing based on id
+					await db.execute(
+						`INSERT INTO customers (customerId, name, email, balance, creditLimit, phone, isSubdealer)
+							VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+							ON CONFLICT(customerId) DO UPDATE SET
+								name = excluded.name,
+								balance = excluded.balance,
+								creditLimit = excluded.creditLimit`,
+						[
+							p.id,
+							p.fullName,
+							p.email,
+							parseFloat(p.balance),
+							p.creditLimit ? parseFloat(p.creditLimit) : 0,
+							p.phone,
+							isSubdealer,
+						]
+					);
+				}
+				await db.execute("COMMIT");
+				return customers;
+			} catch (err) {
+				await db.execute("ROLLBACK");
+				throw err;
+			}
+		}
+	} catch (err) {
+		console.log(err, "From Uploading Customer");
 		throw err;
 	}
 };

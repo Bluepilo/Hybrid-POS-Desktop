@@ -39,6 +39,23 @@ export const PosTitleSearch = styled.div`
 	}
 `;
 
+export const ScanBtn = styled.button`
+	border: 1px solid #fff;
+	background: rgba(38, 50, 56, 1);
+	color: #fff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px 0px;
+	border-radius: 10px;
+	width: 100%;
+	font-size: 0.85rem;
+
+	span {
+		margin-left: 10px;
+	}
+`;
+
 export const SearchBtn = styled.div`
 	margin-top: 20px;
 	width: 100%;
@@ -88,6 +105,8 @@ export const ProductStyle = styled.div`
 	padding: 10px;
 	margin-bottom: 20px;
 	border-radius: 20px;
+	/* height: 100%; */
+
 	cursor: pointer;
 
 	.img {
@@ -101,13 +120,14 @@ export const ProductStyle = styled.div`
 
 		span {
 			position: absolute;
-			top: 10px;
-			left: 10px;
+			top: 5px;
+			left: 5px;
 			color: rgba(76, 175, 80, 1);
 			background: #fff;
 			padding: 4px 8px;
 			border-radius: 5px;
 			font-size: 0.8rem;
+			border: 1px solid rgba(0, 0, 0, 0.2);
 		}
 	}
 
@@ -132,6 +152,7 @@ export const ProductStyle = styled.div`
 		h6 {
 			color: #000;
 			margin-top: 10px;
+			font-size: 1rem;
 		}
 		h5 {
 			font-size: 1rem;

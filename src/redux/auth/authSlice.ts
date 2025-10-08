@@ -27,7 +27,6 @@ export const connectShop = createAsyncThunk(
 	async (_, thunkAPI: any) => {
 		try {
 			const res = await authService.connectShop();
-			console.log(res, "RES");
 			if (Array.isArray(res) && res.length > 0) {
 				return res[0];
 			} else {

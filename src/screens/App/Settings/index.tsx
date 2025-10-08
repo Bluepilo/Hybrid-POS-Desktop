@@ -4,9 +4,13 @@ import { CardBox, InfoBox, SyncBox } from "../../../styles/basic.styles";
 import { IoMdRefresh } from "react-icons/io";
 import { upsertProducts } from "../../../utils/db";
 import appService from "../../../redux/app/appService";
-import { useAppSelector } from "../../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
+import { logoutFromStorage } from "../../../redux/auth/authSlice";
+import { loadProducts } from "../../../redux/app/appSlice";
 
 const Settings = () => {
+	const dispatch = useAppDispatch();
+
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const syncData = async () => {
@@ -15,9 +19,14 @@ const Settings = () => {
 			if (res?.rows?.length > 0) {
 				await upsertProducts(res.rows);
 			}
+			dispatch(loadProducts());
 		} catch (err) {
 			console.log(err, "eeeee");
 		}
+	};
+
+	const logoutHandler = () => {
+		dispatch(logoutFromStorage());
 	};
 
 	return (
@@ -71,10 +80,18 @@ const Settings = () => {
 							</p>
 							<h5 style={{ color: "#666" }}>Ikeja Branch</h5>
 						</div>
-						<div className="col-md-6">
+						<div className="col-md-6 mt-3">
 							<Button
 								name="Disconnect from Online Store"
-								onClick={syncData}
+								onClick={() => console.log("")}
+								border="red"
+								bg="red"
+							/>
+						</div>
+						<div className="col-md-6 mt-3">
+							<Button
+								name="Log Out"
+								onClick={logoutHandler}
 								border="red"
 								bg="red"
 							/>

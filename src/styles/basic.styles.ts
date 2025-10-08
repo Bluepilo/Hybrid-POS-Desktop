@@ -111,6 +111,11 @@ export const TableArea = styled.div`
 	margin-top: 20px;
 `;
 
+export const ZIndex = styled.div`
+	position: relative;
+	z-index: 9991;
+`;
+
 export const StatsStyles = styled.div`
 	background: #000;
 	margin: 10px 0;

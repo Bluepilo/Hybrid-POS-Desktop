@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { createCart } from "../../redux/cart/cartSlice";
 import { displayError } from "../../utils/display";
 import appService from "../../redux/app/appService";
-import { upsertProducts } from "../../utils/db";
+import { upsertCustomers, upsertProducts } from "../../utils/db";
 
 const Loading = () => {
 	const dispatch = useAppDispatch();
@@ -36,6 +36,14 @@ const Loading = () => {
 			let res = await appService.fetchProducts(shopInfo?.id);
 			if (res?.rows?.length > 0) {
 				await upsertProducts(res.rows);
+			}
+			let resC = await appService.fetchCustomers(shopInfo?.id);
+			if (resC?.rows?.length > 0) {
+				await upsertCustomers(resC.rows, false);
+			}
+			let resS = await appService.fetchCustomers(shopInfo?.id);
+			if (resS?.rows?.length > 0) {
+				await upsertCustomers(resS.rows, true);
 				runInterval();
 			}
 		} catch (err) {
