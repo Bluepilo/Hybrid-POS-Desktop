@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { numberWithCommas } from "../../utils/currency";
 import SelectField from "../SelectField";
 import { useState } from "react";
-import { addProductToCart } from "../../redux/cart/cartSlice";
+import { addProductToCart, updateCartField } from "../../redux/cart/cartSlice";
 
 const ListView = () => {
 	const dispatch = useAppDispatch();
@@ -40,6 +40,16 @@ const ListView = () => {
 			);
 			setProd("");
 		}
+	};
+
+	const proceedHandler = () => {
+		dispatch(
+			updateCartField({
+				cartId: params?.tabId || "",
+				value: true,
+				field: "proceed",
+			})
+		);
 	};
 
 	return (
@@ -124,7 +134,10 @@ const ListView = () => {
 					</div>
 				</div>
 				<div className="button">
-					<button disabled={productsInCart.length > 0 ? false : true}>
+					<button
+						disabled={productsInCart.length > 0 ? false : true}
+						onClick={proceedHandler}
+					>
 						Proceed to Payment
 					</button>
 				</div>

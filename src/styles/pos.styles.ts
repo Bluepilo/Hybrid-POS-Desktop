@@ -594,4 +594,11 @@ export const ViewTotal = styled.div`
 	h5 {
 		font-weight: bolder;
 	}
+
+	input {
+		border: 0;
+		outline: 0;
+		color: #000;
+		font-size: 1.3rem;
+	}
 `;

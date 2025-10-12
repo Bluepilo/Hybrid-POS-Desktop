@@ -3,20 +3,31 @@ import { FaImage, FaListUl } from "react-icons/fa";
 import { useState } from "react";
 import ImageView from "../../../components/POS/ImageView";
 import ListView from "../../../components/POS/ListView";
-import { useAppSelector } from "../../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { useParams } from "react-router-dom";
 import CompleteSale from "./CompleteSale";
+import { updateCartField } from "../../../redux/cart/cartSlice";
 
 const POS = () => {
 	const params = useParams();
 
-	const [imageDisplay, setImageDisplay] = useState(true);
+	const dispatch = useAppDispatch();
 
-	const { products } = useAppSelector((state) => state.app);
+	const [imageDisplay, setImageDisplay] = useState(true);
 
 	const { cartItems } = useAppSelector((state) => state.cart);
 
 	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
+
+	const selectCustomer = (value: string) => {
+		dispatch(
+			updateCartField({
+				cartId: params?.tabId || "",
+				value: value === "walk-in" ? false : true,
+				field: "isSubdealer",
+			})
+		);
+	};
 
 	return cartInfo?.proceed ? (
 		<CompleteSale cartId={params?.tabId} />
@@ -27,12 +38,21 @@ const POS = () => {
 					<PosTitleSearch>
 						<div className="title">
 							<h1>Sell to a</h1>
-							<select>
+							<select
+								value={
+									cartInfo?.isSubdealer
+										? "subdealer"
+										: "walk-in"
+								}
+								onChange={(e) => selectCustomer(e.target.value)}
+							>
 								<option value={"walk-in"}>Walk-In</option>
 								<option value={"subdealer"}>Subdealer</option>
 							</select>
 							<h1>Customer</h1>
-							<span>{products?.length}</span>
+							{cartInfo?.products?.length && (
+								<span>{cartInfo?.products?.length}</span>
+							)}
 						</div>
 					</PosTitleSearch>
 				</div>

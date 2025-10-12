@@ -3,6 +3,8 @@ export interface Product {
 	name: string;
 	quantity: number;
 	price: number;
+	discount?: number;
+	discountType?: string;
 }
 
 export interface CartItemType {
@@ -13,6 +15,7 @@ export interface CartItemType {
 	products: Product[];
 	proceed?: boolean;
 	isSubdealer?: boolean;
+	isAdvanced?: boolean;
 }
 
 const cartItemType: CartItemType[] = [];
