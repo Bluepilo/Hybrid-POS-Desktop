@@ -8,24 +8,26 @@ import { SelectedCustomerStyle, ViewTotal } from "../../../styles/pos.styles";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { removeFromCart, updateCartField } from "../../../redux/cart/cartSlice";
 import { confirm } from "@tauri-apps/plugin-dialog";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { numberWithCommas } from "../../../utils/currency";
 import { displayError } from "../../../utils/display";
+import { insertSaleWithProducts } from "../../../utils/dbUpdate";
 
 const CompleteSale = ({ cartId }: { cartId: any }) => {
 	const dispatch = useAppDispatch();
 
-	const params = useParams();
+	const navigate = useNavigate();
 
 	const { customers } = useAppSelector((state) => state.app);
 	const { cartItems } = useAppSelector((state) => state.cart);
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
-	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
+	const cartInfo = cartItems.find((cart) => cart.cartId === cartId);
 
 	let totalAmount =
 		cartInfo?.products?.reduce((a, b) => a + b.price * b.quantity, 0) || 0;
 
+	const [load, setLoad] = useState(false);
 	const [customerInfo, setCustomerInfo] = useState("");
 	const [date, setDate] = useState("");
 	const [reference, setReference] = useState("");
@@ -106,23 +108,31 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 		}
 	};
 
-	const submitHandler = () => {
+	const submitHandler = async () => {
 		if (customerInfo) {
 			try {
+				setLoad(true);
 				let payload = {
-					subdealerId: cartInfo?.isSubdealer ? customerInfo : null,
-					customerId: !cartInfo?.isSubdealer ? customerInfo : null,
+					actorId: customerInfo,
+					isSubdealer: cartInfo?.isSubdealer ? true : false,
 					products: cartInfo?.products,
 					isDeposit: false,
 					comment: "Sales Made on Hybrid App",
-					amountPaid: Number(received),
+					amountPaid: Number(received.replace(/,/g, "")),
 					discount: 0,
 					amountExpected: totalAmount - 0,
 					status: cartInfo?.isAdvanced ? "preorder" : "complete",
 					shopId: shopInfo?.id,
 					paymentMethodId: 3,
+					uniqueRef: cartId,
+					generatedRef: cartId,
 				};
+				await insertSaleWithProducts(payload);
+				dispatch(removeFromCart(cartId));
+				navigate("/app/sales");
+				setLoad(false);
 			} catch (err) {
+				setLoad(false);
 				displayError(err, true);
 			}
 		} else {
@@ -191,8 +201,9 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 						<div className="col-12 mb-3">
 							<Button
 								name="Complete Transaction"
-								onClick={() => console.log("")}
+								onClick={submitHandler}
 								bg="#0141FF"
+								disabled={load}
 							/>
 						</div>
 						<div className="col-6 mb-3">

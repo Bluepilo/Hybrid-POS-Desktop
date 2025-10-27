@@ -31,6 +31,12 @@ const Loading = () => {
 		return () => clearInterval(id.current);
 	}, []);
 
+	useEffect(() => {
+		if (progress >= 100) {
+			goToDashboard();
+		}
+	}, [progress]);
+
 	const uploadProducts = async () => {
 		try {
 			let res = await appService.fetchProducts(shopInfo?.id);
@@ -58,10 +64,9 @@ const Loading = () => {
 		let ran = false;
 		id.current = setInterval(() => {
 			setProgress((p) => {
-				if (p >= 100 && !ran) {
+				if (p >= 100) {
 					ran = true;
 					clearInterval(id.current);
-					goToDashboard();
 					return 100;
 				}
 				return p + 5;

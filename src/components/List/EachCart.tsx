@@ -65,7 +65,7 @@ const EachCart = ({ item }: { item: any }) => {
 			<div className="btm-details">
 				<div>
 					<p>Total Unit Price</p>
-					<h6>₦{numberWithCommas(item.price)}</h6>
+					<h6>₦{numberWithCommas(item.price * item.quantity)}</h6>
 				</div>
 				<CartDiscount>
 					<span className="em">Discount</span>

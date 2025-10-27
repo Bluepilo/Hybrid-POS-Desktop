@@ -20,6 +20,11 @@ const Cart = ({ products }: { products: any }) => {
 		);
 	};
 
+	let totalAmount = products.reduce(
+		(a: any, b: any) => a + b.price * b.quantity,
+		0
+	);
+
 	return (
 		<CartDisplay>
 			<div className="cart">
@@ -36,28 +41,12 @@ const Cart = ({ products }: { products: any }) => {
 						</div>
 						<div>
 							<span>Total Amount Before Discount</span>
-							<strong>
-								₦
-								{numberWithCommas(
-									products.reduce(
-										(a: any, b: any) => a + b.price,
-										0
-									)
-								)}
-							</strong>
+							<strong>₦{numberWithCommas(totalAmount)}</strong>
 						</div>
 					</div>
 					<div className="dark">
 						<span>Total Amount</span>
-						<strong>
-							₦
-							{numberWithCommas(
-								products.reduce(
-									(a: any, b: any) => a + b.price,
-									0
-								)
-							)}
-						</strong>
+						<strong>₦{numberWithCommas(totalAmount)}</strong>
 					</div>
 				</div>
 			</div>

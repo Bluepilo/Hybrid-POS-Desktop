@@ -50,9 +50,10 @@ const POS = () => {
 								<option value={"subdealer"}>Subdealer</option>
 							</select>
 							<h1>Customer</h1>
-							{cartInfo?.products?.length && (
-								<span>{cartInfo?.products?.length}</span>
-							)}
+							{Array.isArray(cartInfo?.products) &&
+								cartInfo.products.length > 0 && (
+									<span>{cartInfo?.products?.length}</span>
+								)}
 						</div>
 					</PosTitleSearch>
 				</div>

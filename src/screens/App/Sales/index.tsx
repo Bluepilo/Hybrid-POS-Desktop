@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import EachSales from "../../../components/List/EachSales";
 import Paginate from "../../../components/Paginate";
 import SalesFilter from "../../../components/Sales/SalesFilter";
@@ -5,8 +6,22 @@ import Stats from "../../../components/Sales/Stats";
 import { TableArea } from "../../../styles/basic.styles";
 import { PosTitleSearch } from "../../../styles/pos.styles";
 import { TableDiv } from "../../../styles/table.styles";
+import { fetchSales } from "../../../utils/dbUpdate";
 
 const Sales = () => {
+	useEffect(() => {
+		listSales();
+	}, []);
+
+	const listSales = async () => {
+		try {
+			let res = await fetchSales();
+			console.log(res, "RESs");
+		} catch (err) {
+			console.log(err, "err");
+		}
+	};
+
 	return (
 		<div className="d-flex flex-column h-100">
 			<PosTitleSearch className="mt-3">

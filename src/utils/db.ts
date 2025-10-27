@@ -9,10 +9,23 @@ export async function initDB() {
 		// Creates (or opens) a SQLite DB file in app’s local data dir
 		db = await Database.load("sqlite:app.db");
 
+		//await db.execute(`DROP TABLE IF EXISTS users`);
 		// await db.execute(`DROP TABLE IF EXISTS products`);
-		// await db.execute(`DROP TABLE IF EXISTS customers`);
+		//await db.execute(`DROP TABLE IF EXISTS customers`);
 		// await db.execute(`DROP TABLE IF EXISTS shops`);
 		// await db.execute(`DROP TABLE IF EXISTS sales`);
+		//await db.execute(`DROP TABLE IF EXISTS sales_products`);
+
+		await db.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+		userId TEXT UNIQUE,
+		name TEXT,
+        loginId TEXT,
+        password TEXT,
+		lastLogin TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
 		await db.execute(`
       CREATE TABLE IF NOT EXISTS products (
@@ -46,11 +59,26 @@ export async function initDB() {
         actualAmountPaid REAL,
         amountExpected REAL,
         amountPaid REAL,
-		customerId INT,
+		actorId INT,
+		isSubdealer BOOLEAN,
 		uniqueRef TEXT,
-		generatedRef TEXT
+		generatedRef TEXT,
+		FOREIGN KEY (actorId) REFERENCES customers(customerId)
       )
     `);
+
+		await db.execute(`
+	CREATE TABLE IF NOT EXISTS sales_products (
+		id INTEGER PRIMARY KEY,
+		saleId INTEGER,
+		productId INTEGER,
+		quantity INTEGER,
+		price REAL,
+		FOREIGN KEY (saleId) REFERENCES sales (id),
+		FOREIGN KEY (productId) REFERENCES products (productId)
+	)
+	`);
+
 		console.log("Table Created and DB Initialized.");
 
 		return db;

@@ -16,9 +16,9 @@ const logout = async () => {
 	return data?.data;
 };
 
-const connectShop = async () => {
+const connectShop = async (code: string) => {
 	const { data } = await apiRequest("baseUrl").get(
-		`/global/shop/all?all=true`
+		`/global/shop/hybrid/${code}`
 	);
 	return data?.data;
 };

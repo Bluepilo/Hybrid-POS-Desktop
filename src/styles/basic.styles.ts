@@ -102,6 +102,22 @@ export const SideStyles = styled.div<{ $open: boolean }>`
 			}
 		}
 	}
+	.nav-btm {
+		position: absolute;
+		bottom: 20px;
+		right: 20px;
+		left: 20px;
+
+		button {
+			width: 100%;
+			background: #000d33;
+			border-radius: 10px;
+			padding: 10px 0;
+			color: #fff;
+			outline: 0;
+			border: 0;
+		}
+	}
 `;
 
 export const TableArea = styled.div`

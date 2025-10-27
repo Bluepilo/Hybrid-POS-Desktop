@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { FlexBetween } from "../../styles/basic.styles";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
-import { login } from "../../redux/auth/authSlice";
+import { login, loginOffline } from "../../redux/auth/authSlice";
 import { Spinner } from "react-bootstrap";
 import { generateId } from "../../utils/data";
+import { hasInternet } from "../../utils/internet";
 
 const Auth = () => {
 	const dispatch = useAppDispatch();
@@ -20,13 +21,30 @@ const Auth = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
+	const [connected, setConnected] = useState(true);
 
 	useEffect(() => {
 		nextNav();
 	}, [user]);
 
-	const loginHandler = () => {
-		dispatch(login({ email, password }));
+	useEffect(() => {
+		checkIfInternet();
+	}, []);
+
+	const loginHandler = async () => {
+		if (connected) {
+			dispatch(login({ email, password }));
+		} else {
+			dispatch(loginOffline({ email, password }));
+		}
+	};
+
+	const checkIfInternet = async () => {
+		if (await hasInternet()) {
+			setConnected(true);
+		} else {
+			setConnected(false);
+		}
 	};
 
 	const nextNav = () => {
@@ -54,9 +72,9 @@ const Auth = () => {
 					</button>
 				</div>
 				<h6 className="title">Sign In</h6>
-				<div className="status">
+				<div className={`status ${connected}`}>
 					<i />
-					<span>Online</span>
+					<span>{connected ? "Online" : "Offline"}</span>
 				</div>
 				<div className="form">
 					<div>

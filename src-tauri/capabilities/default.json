@@ -12,6 +12,10 @@
 		"sql:allow-select",
 		"sql:allow-close",
 		"dialog:default",
-		"dialog:allow-confirm"
+		"dialog:allow-confirm",
+		{
+			"identifier": "http:default",
+			"allow": ["https://www.google.com", "https://dev-app.bluepilo.com"]
+		}
 	]
 }

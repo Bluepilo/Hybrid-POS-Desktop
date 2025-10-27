@@ -21,7 +21,7 @@ const Connect = () => {
 
 	const connectHandler = async () => {
 		if (code) {
-			let res = await dispatch(connectShop()).unwrap();
+			let res = await dispatch(connectShop(code)).unwrap();
 			if (res?.id) {
 				setConnecting(true);
 			}

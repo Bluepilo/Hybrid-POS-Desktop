@@ -17,6 +17,9 @@ importers:
       '@tauri-apps/plugin-dialog':
         specifier: ^2.4.0
         version: 2.4.0
+      '@tauri-apps/plugin-http':
+        specifier: ^2.5.4
+        version: 2.5.4
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.5.0
@@ -26,6 +29,9 @@ importers:
       axios:
         specifier: ^1.12.2
         version: 1.12.2
+      bcryptjs:
+        specifier: ^3.0.2
+        version: 3.0.2
       react:
         specifier: ^19.1.0
         version: 19.1.1
@@ -631,6 +637,9 @@ packages:
   '@tauri-apps/plugin-dialog@2.4.0':
     resolution: {integrity: sha512-OvXkrEBfWwtd8tzVCEXIvRfNEX87qs2jv6SqmVPiHcJjBhSF/GUvjqUNIDmKByb5N8nvDqVUM7+g1sXwdC/S9w==}
 
+  '@tauri-apps/plugin-http@2.5.4':
+    resolution: {integrity: sha512-/i4U/9za3mrytTgfRn5RHneKubZE/dwRmshYwyMvNRlkWjvu1m4Ma72kcbVJMZFGXpkbl+qLyWMGrihtWB76Zg==}
+
   '@tauri-apps/plugin-opener@2.5.0':
     resolution: {integrity: sha512-B0LShOYae4CZjN8leiNDbnfjSrTwoZakqKaWpfoH6nXiJwt6Rgj6RnVIffG3DoJiKsffRhMkjmBV9VeilSb4TA==}
 
@@ -698,6 +707,10 @@ packages:
 
   baseline-browser-mapping@2.8.7:
     resolution: {integrity: sha512-bxxN2M3a4d1CRoQC//IqsR5XrLh0IJ8TCv2x6Y9N0nckNz/rTjZB3//GGscZziZOxmjP55rzxg/ze7usFI9FqQ==}
+    hasBin: true
+
+  bcryptjs@3.0.2:
+    resolution: {integrity: sha512-k38b3XOZKv60C4E2hVsXTolJWfkGRMbILBIe2IBITXciy5bOsTKot5kDrf3ZfufQtQOUN5mXceUEpU1rTl9Uog==}
     hasBin: true
 
   browserslist@4.26.2:
@@ -1706,6 +1719,10 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.8.0
 
+  '@tauri-apps/plugin-http@2.5.4':
+    dependencies:
+      '@tauri-apps/api': 2.8.0
+
   '@tauri-apps/plugin-opener@2.5.0':
     dependencies:
       '@tauri-apps/api': 2.8.0
@@ -1788,6 +1805,8 @@ snapshots:
       resolve: 1.22.10
 
   baseline-browser-mapping@2.8.7: {}
+
+  bcryptjs@3.0.2: {}
 
   browserslist@4.26.2:
     dependencies:

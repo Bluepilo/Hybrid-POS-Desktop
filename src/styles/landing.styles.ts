@@ -182,6 +182,14 @@ export const BgStyles = styled.div`
 			color: rgba(76, 175, 80, 1);
 			font-weight: normal;
 
+			&.false {
+				color: red;
+
+				i {
+					background: red;
+				}
+			}
+
 			i {
 				height: 10px;
 				width: 10px;
