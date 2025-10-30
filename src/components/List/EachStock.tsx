@@ -1,10 +1,10 @@
-const EachStock = ({}: { item: any }) => {
+const EachStock = ({ item }: { item: any }) => {
 	return (
 		<tr>
-			<td>Classic T-Shirt</td>
-			<td>Gram (g)</td>
-			<td>250</td>
-			<td>3637282818938</td>
+			<td>{item.name}</td>
+			<td>No Measurement defined</td>
+			<td>{item.totalStock}</td>
+			<td>{item.barcode || "No Barcode Attached"}</td>
 		</tr>
 	);
 };

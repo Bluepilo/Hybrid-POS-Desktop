@@ -2,31 +2,26 @@ import { BsCloudUpload } from "react-icons/bs";
 import Button from "../../../components/Button";
 import { CardBox, InfoBox, SyncBox } from "../../../styles/basic.styles";
 import { IoMdRefresh } from "react-icons/io";
-import { upsertProducts } from "../../../utils/db";
-import appService from "../../../redux/app/appService";
-import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
-import { logoutFromStorage } from "../../../redux/auth/authSlice";
-import { loadProducts } from "../../../redux/app/appSlice";
+import { useAppSelector } from "../../../utils/hooks";
+import { syncDBShop } from "../../../utils/db/dbUpdate";
+import { useState } from "react";
+import { displayError } from "../../../utils/display";
 
 const Settings = () => {
-	const dispatch = useAppDispatch();
-
+	const [load, setLoad] = useState(false);
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const syncData = async () => {
-		try {
-			let res = await appService.fetchProducts(shopInfo?.id);
-			if (res?.rows?.length > 0) {
-				await upsertProducts(res.rows);
+		if (shopInfo?.id) {
+			try {
+				setLoad(true);
+				await syncDBShop(shopInfo.id);
+				setLoad(false);
+			} catch (err) {
+				setLoad(false);
+				displayError(err, true);
 			}
-			dispatch(loadProducts());
-		} catch (err) {
-			console.log(err, "eeeee");
 		}
-	};
-
-	const logoutHandler = () => {
-		dispatch(logoutFromStorage());
 	};
 
 	return (
@@ -88,14 +83,6 @@ const Settings = () => {
 								bg="red"
 							/>
 						</div>
-						<div className="col-md-6 mt-3">
-							<Button
-								name="Log Out"
-								onClick={logoutHandler}
-								border="red"
-								bg="red"
-							/>
-						</div>
 					</CardBox>
 				</div>
 				<div className="col-lg-6">
@@ -134,7 +121,7 @@ const Settings = () => {
 							<div className="prog">
 								<div className="line" />
 							</div>
-							<button onClick={syncData}>
+							<button>
 								<IoMdRefresh size={20} color="#FFF" />
 							</button>
 						</SyncBox>
@@ -149,7 +136,7 @@ const Settings = () => {
 							<div className="prog">
 								<div className="line" />
 							</div>
-							<button>
+							<button disabled={load} onClick={syncData}>
 								<IoMdRefresh size={20} color="#FFF" />
 							</button>
 						</SyncBox>

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import InputField from "../InputField";
 
-const CustomerFilter = () => {
+const CustomerFilter = ({
+	customerType,
+	setCustomerType,
+}: {
+	customerType: string;
+	setCustomerType: (arg: string) => void;
+}) => {
 	const [dateType, setDateType] = useState("");
 
 	return (
@@ -19,10 +25,14 @@ const CustomerFilter = () => {
 				<div className="col-lg-1 col-md-3 col-4">
 					<InputField
 						inputType="select"
-						value={dateType}
-						setValue={setDateType}
+						value={customerType}
+						setValue={setCustomerType}
 						placeholder="Customer Type"
 						noMargin
+						options={[
+							{ label: "Walk-In", value: "customer" },
+							{ label: "Subdealer", value: "subdealer" },
+						]}
 					/>
 				</div>
 				<div className="col-lg-1 col-md-3 col-4">

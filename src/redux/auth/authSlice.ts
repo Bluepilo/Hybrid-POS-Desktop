@@ -3,6 +3,7 @@ import authService from "./authService";
 import { displayError } from "../../utils/display";
 import { getDB } from "../../utils/db";
 import bcrypt from "bcryptjs";
+import { syncDBShop } from "../../utils/db/dbUpdate";
 
 const initialState = {
 	user: null as any,
@@ -12,8 +13,9 @@ const initialState = {
 
 export const login = createAsyncThunk(
 	"auth/login",
-	async (data: any, thunkAPI) => {
+	async (data: any, thunkAPI: any) => {
 		try {
+			const { shopInfo } = thunkAPI.getState().auth;
 			const res = await authService.login(data);
 			localStorage.setItem("@accesstoken", res?.accessToken);
 
@@ -33,7 +35,10 @@ export const login = createAsyncThunk(
 					]
 				);
 			}
-			return res;
+			if (shopInfo?.id) {
+				await syncDBShop(shopInfo.id);
+			}
+			return { ...user, userId: user.id };
 		} catch (error) {
 			const message = displayError(error, true);
 			return thunkAPI.rejectWithValue(message);
@@ -122,7 +127,7 @@ export const authSlice = createSlice({
 		});
 		builder.addCase(login.fulfilled, (state, action) => {
 			state.load = false;
-			state.user = action.payload.user;
+			state.user = action.payload;
 		});
 		builder.addCase(login.rejected, (state) => {
 			state.load = false;

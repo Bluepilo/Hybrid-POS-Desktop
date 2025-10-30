@@ -48,7 +48,7 @@ const Auth = () => {
 	};
 
 	const nextNav = () => {
-		if (user?.id) {
+		if (user?.userId) {
 			if (shopInfo?.id) {
 				const id = generateId();
 				const posId = cartItems?.length > 0 ? cartItems[0].cartId : id;
@@ -59,7 +59,7 @@ const Auth = () => {
 		}
 	};
 
-	return !user?.id ? (
+	return !user?.userId ? (
 		<BgStyles>
 			<div className="log-box">
 				<div className="logo">

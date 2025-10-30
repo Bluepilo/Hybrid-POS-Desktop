@@ -2,20 +2,29 @@ import { StatsStyles, TableArea } from "../../../styles/basic.styles";
 import { PosTitleSearch } from "../../../styles/pos.styles";
 import Icon from "../../../assets/images/money.svg";
 import InputField from "../../../components/InputField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TableDiv } from "../../../styles/table.styles";
 import EachStock from "../../../components/List/EachStock";
 import Paginate from "../../../components/Paginate";
+import { loadProducts } from "../../../redux/app/appSlice";
+import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 
 const Stocks = () => {
+	const dispatch = useAppDispatch();
+
 	const [dateType, setDateType] = useState("");
+
+	const { products } = useAppSelector((state) => state.app);
+
+	useEffect(() => {
+		dispatch(loadProducts());
+	}, []);
 
 	return (
 		<div className="d-flex flex-column h-100">
 			<PosTitleSearch className="mt-3">
 				<div className="title">
 					<h1>Stocks</h1>
-					<span>3</span>
 				</div>
 			</PosTitleSearch>
 			<div className="row">
@@ -27,7 +36,7 @@ const Stocks = () => {
 							</div>
 							<div className="text">
 								<h6>Products in Stock</h6>
-								<h6>5000</h6>
+								<h6>{products?.length}</h6>
 							</div>
 						</div>
 					</StatsStyles>
@@ -87,8 +96,8 @@ const Stocks = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{Array.from({ length: 10 }).map((_, i) => (
-								<EachStock key={i} item={{}} />
+							{products?.map((product: any) => (
+								<EachStock key={product.id} item={product} />
 							))}
 						</tbody>
 					</TableDiv>

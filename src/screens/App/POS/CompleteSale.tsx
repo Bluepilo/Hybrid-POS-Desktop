@@ -11,21 +11,23 @@ import { confirm } from "@tauri-apps/plugin-dialog";
 import { useNavigate } from "react-router-dom";
 import { numberWithCommas } from "../../../utils/currency";
 import { displayError } from "../../../utils/display";
-import { insertSaleWithProducts } from "../../../utils/dbUpdate";
+import { insertSaleWithProducts } from "../../../utils/db/dbUpdate";
 
 const CompleteSale = ({ cartId }: { cartId: any }) => {
 	const dispatch = useAppDispatch();
 
 	const navigate = useNavigate();
 
-	const { customers } = useAppSelector((state) => state.app);
+	const { customers, subdealers } = useAppSelector((state) => state.app);
 	const { cartItems } = useAppSelector((state) => state.cart);
-	const { shopInfo } = useAppSelector((state) => state.auth);
+	const { shopInfo, user } = useAppSelector((state) => state.auth);
 
 	const cartInfo = cartItems.find((cart) => cart.cartId === cartId);
 
 	let totalAmount =
 		cartInfo?.products?.reduce((a, b) => a + b.price * b.quantity, 0) || 0;
+
+	let customerType = cartInfo?.isSubdealer ? subdealers : customers;
 
 	const [load, setLoad] = useState(false);
 	const [customerInfo, setCustomerInfo] = useState("");
@@ -33,15 +35,9 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 	const [reference, setReference] = useState("");
 	const [notes, setNotes] = useState("");
 	const [list] = useState(
-		customers
-			?.filter((f: any) =>
-				cartInfo?.isSubdealer
-					? f.isSubdealer === "true"
-					: f.isSubdealer === "false"
-			)
-			?.map((val: any) => {
-				return { ...val, label: val.name, value: val.customerId };
-			})
+		customerType?.map((val: any) => {
+			return { ...val, label: val.name, value: val.customerId };
+		})
 	);
 	const [minAmount, setMinAmount] = useState(0);
 	const [received, setReceived] = useState("");
@@ -109,34 +105,43 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 	};
 
 	const submitHandler = async () => {
-		if (customerInfo) {
-			try {
-				setLoad(true);
-				let payload = {
-					actorId: customerInfo,
-					isSubdealer: cartInfo?.isSubdealer ? true : false,
-					products: cartInfo?.products,
-					isDeposit: false,
-					comment: "Sales Made on Hybrid App",
-					amountPaid: Number(received.replace(/,/g, "")),
-					discount: 0,
-					amountExpected: totalAmount - 0,
-					status: cartInfo?.isAdvanced ? "preorder" : "complete",
-					shopId: shopInfo?.id,
-					paymentMethodId: 3,
-					uniqueRef: cartId,
-					generatedRef: cartId,
-				};
-				await insertSaleWithProducts(payload);
-				dispatch(removeFromCart(cartId));
-				navigate("/app/sales");
-				setLoad(false);
-			} catch (err) {
-				setLoad(false);
-				displayError(err, true);
-			}
-		} else {
-			displayError("Please Select Customer", true);
+		if (!customerInfo) {
+			displayError("Please Select a Customer", true);
+			return;
+		}
+
+		if (!received) {
+			displayError("Provide the amount Paid", true);
+			return;
+		}
+
+		try {
+			setLoad(true);
+			let payload = {
+				actorId: customerInfo,
+				subdealerId: cartInfo?.isSubdealer ? customerInfo : "",
+				customerId: cartInfo?.isSubdealer ? "" : customerInfo,
+				isSubdealer: cartInfo?.isSubdealer ? true : false,
+				products: cartInfo?.products,
+				isDeposit: false,
+				comment: notes,
+				amountPaid: Number(received.replace(/,/g, "")),
+				discount: 0,
+				amountExpected: totalAmount - 0,
+				status: cartInfo?.isAdvanced ? "preorder" : "complete",
+				shopId: shopInfo?.id,
+				paymentMethodId: 3,
+				hybridRef: cartId,
+				userId: user.userId,
+				syncStatus: "pending",
+			};
+			await insertSaleWithProducts(payload);
+			dispatch(removeFromCart(cartId));
+			navigate("/app/sales");
+			setLoad(false);
+		} catch (err) {
+			setLoad(false);
+			displayError(err, true);
 		}
 	};
 

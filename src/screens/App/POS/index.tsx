@@ -1,12 +1,13 @@
 import { DisplayType, PosTitleSearch } from "../../../styles/pos.styles";
 import { FaImage, FaListUl } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageView from "../../../components/POS/ImageView";
 import ListView from "../../../components/POS/ListView";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { useParams } from "react-router-dom";
 import CompleteSale from "./CompleteSale";
 import { updateCartField } from "../../../redux/cart/cartSlice";
+import { loadProducts } from "../../../redux/app/appSlice";
 
 const POS = () => {
 	const params = useParams();
@@ -19,12 +20,26 @@ const POS = () => {
 
 	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
 
+	useEffect(() => {
+		dispatch(loadProducts());
+	}, []);
+
 	const selectCustomer = (value: string) => {
 		dispatch(
 			updateCartField({
 				cartId: params?.tabId || "",
 				value: value === "walk-in" ? false : true,
 				field: "isSubdealer",
+			})
+		);
+	};
+
+	const selectAdvance = (value: string) => {
+		dispatch(
+			updateCartField({
+				cartId: params?.tabId || "",
+				value: value === "normal" ? false : true,
+				field: "isAdvanced",
 			})
 		);
 	};
@@ -61,7 +76,12 @@ const POS = () => {
 					<DisplayType>
 						<div className="select">
 							<span>Select Sales Type</span>
-							<select>
+							<select
+								value={
+									cartInfo?.isAdvanced ? "advance" : "normal"
+								}
+								onChange={(e) => selectAdvance(e.target.value)}
+							>
 								<option value={"normal"}>Normal</option>
 								<option value={"advance"}>Advance</option>
 							</select>

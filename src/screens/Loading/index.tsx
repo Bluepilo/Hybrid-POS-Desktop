@@ -6,8 +6,7 @@ import { generateId } from "../../utils/data";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { createCart } from "../../redux/cart/cartSlice";
 import { displayError } from "../../utils/display";
-import appService from "../../redux/app/appService";
-import { upsertCustomers, upsertProducts } from "../../utils/db";
+import { syncDBShop } from "../../utils/db/dbUpdate";
 
 const Loading = () => {
 	const dispatch = useAppDispatch();
@@ -39,19 +38,8 @@ const Loading = () => {
 
 	const uploadProducts = async () => {
 		try {
-			let res = await appService.fetchProducts(shopInfo?.id);
-			if (res?.rows?.length > 0) {
-				await upsertProducts(res.rows);
-			}
-			let resC = await appService.fetchCustomers(shopInfo?.id);
-			if (resC?.rows?.length > 0) {
-				await upsertCustomers(resC.rows, false);
-			}
-			let resS = await appService.fetchCustomers(shopInfo?.id);
-			if (resS?.rows?.length > 0) {
-				await upsertCustomers(resS.rows, true);
-				runInterval();
-			}
+			await syncDBShop(shopInfo?.id);
+			runInterval();
 		} catch (err) {
 			displayError(
 				"There was an error updating your stocks. Please Contact Admin",

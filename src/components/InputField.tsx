@@ -66,11 +66,16 @@ const InputField = ({
 				)}
 			</div>
 			{inputType === "select" ? (
-				<select>
+				<select
+					value={value}
+					onChange={(e) => setValue(e.target.value)}
+				>
 					<option value={""}>{placeholder || ""}</option>
 					{options &&
 						options.map((option) => (
-							<option value={option.value}>{option.label}</option>
+							<option value={option.value} key={option.value}>
+								{option.label}
+							</option>
 						))}
 				</select>
 			) : multi ? (

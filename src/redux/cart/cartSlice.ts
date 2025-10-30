@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { CartItemType, cartItemType, Product } from "../../utils/types";
+import { generateId } from "../../utils/data";
 
 const initialState = {
 	cartItems: cartItemType,
@@ -92,6 +93,10 @@ export const cartSlice = createSlice({
 			}
 		},
 		removeFromCart: (state, action: PayloadAction<string>) => {
+			if (state.cartItems.length === 1) {
+				const id = generateId();
+				createCart(id);
+			}
 			state.cartItems = state.cartItems.filter(
 				(cart) => cart.cartId !== action.payload
 			);

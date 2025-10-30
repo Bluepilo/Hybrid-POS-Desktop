@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import CustomerFilter from "../../../components/Customer/CustomerFilter";
 import EachCustomer from "../../../components/List/EachCustomer";
 import Paginate from "../../../components/Paginate";
@@ -11,21 +11,34 @@ import { loadCustomers } from "../../../redux/app/appSlice";
 const Customers = () => {
 	const dispatch = useAppDispatch();
 
-	const { customers } = useAppSelector((state) => state.app);
+	const { customers, subdealers } = useAppSelector((state) => state.app);
+
+	const [customerType, setCustomerType] = useState("customer");
 
 	useEffect(() => {
 		dispatch(loadCustomers());
 	}, []);
+
+	const arrayToLoad = () => {
+		if (customerType === "customer") {
+			return customers;
+		} else {
+			return subdealers;
+		}
+	};
 
 	return (
 		<div className="d-flex flex-column h-100">
 			<PosTitleSearch className="mt-3">
 				<div className="title">
 					<h1>Customers</h1>
-					<span>{customers.length}</span>
+					<span>{arrayToLoad().length}</span>
 				</div>
 			</PosTitleSearch>
-			<CustomerFilter />
+			<CustomerFilter
+				customerType={customerType}
+				setCustomerType={setCustomerType}
+			/>
 			<TableArea>
 				<div className="table-responsive h-100">
 					<TableDiv className="table mb-0">
@@ -42,7 +55,7 @@ const Customers = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{customers.map((customer: any) => (
+							{arrayToLoad().map((customer: any) => (
 								<EachCustomer
 									key={customer.id}
 									item={customer}

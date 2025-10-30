@@ -1,22 +1,30 @@
-import { useEffect } from "react";
-import EachSales from "../../../components/List/EachSales";
+import { useEffect, useState } from "react";
 import Paginate from "../../../components/Paginate";
 import SalesFilter from "../../../components/Sales/SalesFilter";
 import Stats from "../../../components/Sales/Stats";
-import { TableArea } from "../../../styles/basic.styles";
 import { PosTitleSearch } from "../../../styles/pos.styles";
-import { TableDiv } from "../../../styles/table.styles";
-import { fetchSales } from "../../../utils/dbUpdate";
+import SalesSummaryView from "../../../components/Sales/SalesSummaryView";
+import { fetchAllSales, getSalesProducts } from "../../../utils/db/dbFetch";
+import SalesDetailsView from "../../../components/Sales/SalesDetailsView";
 
 const Sales = () => {
+	const [viewType, setViewType] = useState("details");
+	const [vlist, setvList] = useState<any>({});
+	const [dlist, setdList] = useState<any>({});
+
 	useEffect(() => {
 		listSales();
-	}, []);
+	}, [viewType]);
 
 	const listSales = async () => {
 		try {
-			let res = await fetchSales();
-			console.log(res, "RESs");
+			if (viewType === "details") {
+				let res = await getSalesProducts({});
+				setdList(res);
+			} else {
+				let res = await fetchAllSales({});
+				setvList(res);
+			}
 		} catch (err) {
 			console.log(err, "err");
 		}
@@ -27,37 +35,25 @@ const Sales = () => {
 			<PosTitleSearch className="mt-3">
 				<div className="title">
 					<h1>Sales Record</h1>
-					<span>3</span>
-					<select>
-						<option value={"walk-in"}>Detail View</option>
+					<span>
+						{viewType === "details" ? dlist?.total : vlist?.total}
+					</span>
+					<select
+						value={viewType}
+						onChange={(e) => setViewType(e.target.value)}
+					>
+						<option value={"details"}>Detail View</option>
+						<option value={"summary"}>Summary View</option>
 					</select>
 				</div>
 			</PosTitleSearch>
 			<Stats />
 			<SalesFilter />
-			<TableArea>
-				<div className="table-responsive h-100">
-					<TableDiv className="table mb-0">
-						<thead>
-							<tr>
-								<th>Date</th>
-								<th>Product</th>
-								<th>Transaction ID</th>
-								<th>Staff</th>
-								<th>Sales Amount</th>
-								<th>Source</th>
-								<th>Sync Status</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							{Array.from({ length: 10 }).map((_, i) => (
-								<EachSales key={i} item={{}} />
-							))}
-						</tbody>
-					</TableDiv>
-				</div>
-			</TableArea>
+			{viewType === "details" ? (
+				<SalesDetailsView list={dlist} />
+			) : (
+				<SalesSummaryView list={vlist} />
+			)}
 			<Paginate
 				changeLimit={(l) => console.log(l)}
 				limit={20}

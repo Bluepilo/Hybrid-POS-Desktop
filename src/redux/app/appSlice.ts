@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchProductsFromDB } from "../../utils/db";
-import { fetchCustomersFromDB } from "../../utils/fetch";
+import {
+	fetchProductsFromDB,
+	fetchCustomersFromDB,
+} from "../../utils/db/dbFetch";
 
 const initialState = {
 	products: [] as any,
@@ -33,10 +35,10 @@ export const appSlice = createSlice({
 		builder.addCase(loadCustomers.fulfilled, (state, action) => {
 			if (Array.isArray(action.payload)) {
 				state.customers = action.payload?.filter(
-					(f: any) => f.isSubdealer == "false"
+					(f: any) => !f.isSubdealer
 				);
 				state.subdealers = action.payload?.filter(
-					(f: any) => f.isSubdealer == "true"
+					(f: any) => f.isSubdealer
 				);
 			}
 		});

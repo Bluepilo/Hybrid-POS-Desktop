@@ -29,7 +29,7 @@ const Cart = ({ products }: { products: any }) => {
 		<CartDisplay>
 			<div className="cart">
 				<div className="items">
-					{products.map((product: any) => (
+					{products?.map((product: any) => (
 						<EachCart item={product} key={product.id} />
 					))}
 				</div>

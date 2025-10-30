@@ -13,8 +13,22 @@ const ImageView = () => {
 
 	const { cartItems } = useAppSelector((state) => state.cart);
 
+	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
+
 	const productsInCart =
 		cartItems.find((cart) => cart.cartId === params?.tabId)?.products || [];
+
+	const productArr = () => {
+		if (cartInfo?.isAdvanced) {
+			return products;
+		} else {
+			return products?.filter(
+				(a: any) => (!a.isService && a.totalStock !== 0) || a.isService
+			);
+		}
+	};
+
+	console.log(products[0]);
 
 	return (
 		<div className="row">
@@ -30,9 +44,8 @@ const ImageView = () => {
 					</button>
 				</SearchBtn>
 				<BodyScroll className="mt-3 row">
-					{Array.isArray(products) &&
-						products.length > 0 &&
-						products.map((product) => (
+					{Array.isArray(productArr()) &&
+						productArr().map((product: any) => (
 							<div
 								className={`col-lg-${
 									productsInCart.length > 0 ? "3" : "2"
