@@ -52,6 +52,20 @@ const ListView = () => {
 		);
 	};
 
+	let totalAmount = productsInCart.reduce(
+		(a: any, b: any) => a + b.price * b.quantity,
+		0
+	);
+
+	let totalDiscount = productsInCart.reduce(
+		(a: any, b: any) =>
+			a +
+			(b.discountType === "currency"
+				? b.discount || 0
+				: ((b.discount || 0) / 100) * (b.price * b.quantity)),
+		0
+	);
+
 	return (
 		<div className="d-flex flex-column h-100">
 			<div className="row">
@@ -113,18 +127,12 @@ const ListView = () => {
 					<div>
 						<span>Total Amount</span>
 						<strong style={{ color: "#FFB500", fontSize: "2rem" }}>
-							₦
-							{numberWithCommas(
-								productsInCart.reduce(
-									(a: any, b: any) => a + b.price,
-									0
-								)
-							)}
+							₦{numberWithCommas(totalAmount - totalDiscount)}
 						</strong>
 					</div>
 					<div>
 						<span>Total Discount</span>
-						<strong>₦0</strong>
+						<strong>₦{numberWithCommas(totalDiscount)}</strong>
 					</div>
 					<div>
 						<span>Add VAT</span>

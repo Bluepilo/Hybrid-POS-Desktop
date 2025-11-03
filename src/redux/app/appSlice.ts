@@ -8,6 +8,7 @@ const initialState = {
 	products: [] as any,
 	customers: [] as any,
 	subdealers: [] as any,
+	syncCount: 0,
 };
 
 export const loadProducts = createAsyncThunk("app/products", async (_) => {
@@ -27,7 +28,14 @@ export const loadCustomers = createAsyncThunk("app/customers", async (_) => {
 export const appSlice = createSlice({
 	name: "auth",
 	initialState,
-	reducers: {},
+	reducers: {
+		increaseSync: (state) => {
+			state.syncCount = (state.syncCount ?? 0) + 1;
+		},
+		reduceSync: (state) => {
+			state.syncCount = state.syncCount - 1;
+		},
+	},
 	extraReducers: (builder) => {
 		builder.addCase(loadProducts.fulfilled, (state, action) => {
 			state.products = action.payload;
@@ -45,6 +53,6 @@ export const appSlice = createSlice({
 	},
 });
 
-export const {} = appSlice.actions;
+export const { reduceSync, increaseSync } = appSlice.actions;
 
 export default appSlice.reducer;

@@ -28,8 +28,6 @@ const ImageView = () => {
 		}
 	};
 
-	console.log(products[0]);
-
 	return (
 		<div className="row">
 			<div className={`col-${productsInCart.length > 0 ? "8" : "12"}`}>

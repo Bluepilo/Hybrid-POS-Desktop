@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useAppDispatch } from "../../utils/hooks";
 import {
 	removeProductCart,
+	updateProductDiscount,
+	updateProductDiscountType,
 	updateProductQuantity,
 } from "../../redux/cart/cartSlice";
 import { numberWithCommas } from "../../utils/currency";
@@ -13,7 +15,7 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 	const dispatch = useAppDispatch();
 
 	const [value, setValue] = useState(`${item.quantity}`);
-	const [discount, setDiscount] = useState("");
+	const [discount, setDiscount] = useState(`${item.discount || 0}`);
 
 	const updateHandler = (val: number) => {
 		if (!isNaN(val)) {
@@ -30,6 +32,19 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 
 	const deleteHandler = () => {
 		dispatch(removeProductCart({ cartId, productId: item.id }));
+	};
+
+	const updateDiscount = (val: number) => {
+		if (!isNaN(val)) {
+			setDiscount(`${val}`);
+			dispatch(
+				updateProductDiscount({
+					cartId,
+					productId: item.id,
+					discount: val,
+				})
+			);
+		}
 	};
 
 	return (
@@ -58,13 +73,28 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 			<td>₦{numberWithCommas(item.price)}</td>
 			<td className="discount">
 				<CartDiscount>
-					<button>
-						<span>%</span>
+					<button
+						onClick={() =>
+							dispatch(
+								updateProductDiscountType({
+									cartId,
+									productId: item.id,
+									isPercent:
+										item.discountType === "currency"
+											? true
+											: false,
+								})
+							)
+						}
+					>
+						<span>
+							{item.discountType === "currency" ? "₦" : "%"}
+						</span>
 						<FaCaretDown />
 					</button>
 					<input
 						value={discount}
-						onChange={(e) => setDiscount(e.target.value)}
+						onChange={(e) => updateDiscount(Number(e.target.value))}
 					/>
 				</CartDiscount>
 			</td>

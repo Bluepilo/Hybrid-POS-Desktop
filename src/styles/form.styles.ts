@@ -69,3 +69,68 @@ export const ButtonClick = styled.button`
 		margin-right: 10px;
 	}
 `;
+
+export const SessionDiv = styled.div`
+	margin-top: 20px;
+	text-align: center;
+	input {
+		border: 1px solid rgba(102, 102, 102, 1);
+		background: #fff;
+		width: 100%;
+		display: block;
+		height: 40px;
+		padding-left: 20px;
+		border-radius: 20px;
+		outline: 0;
+		font-size: 1rem;
+		margin-bottom: 15px;
+
+		&::placeholder {
+			font-size: 0.9rem;
+			color: rgba(102, 102, 102, 1);
+		}
+
+		&.right {
+			text-align: center;
+		}
+	}
+
+	label {
+		display: block;
+		text-align: left;
+		color: rgba(102, 102, 102, 1);
+		margin-bottom: 4px;
+	}
+
+	button {
+		background: #0141ff;
+		outline: 0;
+		border: 0;
+		color: #fff;
+		padding: 10px 40px;
+		border-radius: 20px;
+		font-weight: bold;
+
+		&.wide {
+			width: 100%;
+			padding: 15px;
+			font-size: 1rem;
+			margin-top: 10px;
+		}
+
+		&.button {
+			padding: 0;
+			margin-bottom: 4px;
+			display: inline-flex;
+			align-items: center;
+			background: none;
+			font-size: 1rem;
+			color: rgba(102, 102, 102, 1);
+			font-weight: normal;
+
+			span {
+				margin-left: 10px;
+			}
+		}
+	}
+`;

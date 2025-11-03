@@ -5,6 +5,8 @@ import { numberWithCommas } from "../../utils/currency";
 import { useAppDispatch } from "../../utils/hooks";
 import {
 	removeProductCart,
+	updateProductDiscount,
+	updateProductDiscountType,
 	updateProductQuantity,
 } from "../../redux/cart/cartSlice";
 import { useParams } from "react-router-dom";
@@ -18,6 +20,7 @@ const EachCart = ({ item }: { item: any }) => {
 	const dispatch = useAppDispatch();
 
 	const [value, setValue] = useState(`${item.quantity}`);
+	const [discount, setDiscount] = useState(`${item.discount || 0}`);
 
 	const deleteHandler = () => {
 		dispatch(removeProductCart({ cartId, productId: item.id }));
@@ -31,6 +34,19 @@ const EachCart = ({ item }: { item: any }) => {
 					cartId,
 					productId: item.id,
 					quantity: val,
+				})
+			);
+		}
+	};
+
+	const updateDiscount = (val: number) => {
+		if (!isNaN(val)) {
+			setDiscount(`${val}`);
+			dispatch(
+				updateProductDiscount({
+					cartId,
+					productId: item.id,
+					discount: val,
 				})
 			);
 		}
@@ -69,11 +85,29 @@ const EachCart = ({ item }: { item: any }) => {
 				</div>
 				<CartDiscount>
 					<span className="em">Discount</span>
-					<button>
-						<span>%</span>
+					<button
+						onClick={() =>
+							dispatch(
+								updateProductDiscountType({
+									cartId,
+									productId: item.id,
+									isPercent:
+										item.discountType === "currency"
+											? true
+											: false,
+								})
+							)
+						}
+					>
+						<span>
+							{item.discountType === "currency" ? "₦" : "%"}
+						</span>
 						<FaCaretDown />
 					</button>
-					<input value={"0"} />
+					<input
+						value={discount}
+						onChange={(e) => updateDiscount(Number(e.target.value))}
+					/>
 				</CartDiscount>
 			</div>
 		</CartItem>

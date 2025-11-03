@@ -25,6 +25,15 @@ const Cart = ({ products }: { products: any }) => {
 		0
 	);
 
+	let totalDiscount = products.reduce(
+		(a: any, b: any) =>
+			a +
+			(b.discountType === "currency"
+				? b.discount || 0
+				: ((b.discount || 0) / 100) * (b.price * b.quantity)),
+		0
+	);
+
 	return (
 		<CartDisplay>
 			<div className="cart">
@@ -37,7 +46,7 @@ const Cart = ({ products }: { products: any }) => {
 					<div className="yellow">
 						<div>
 							<span>Total Discount</span>
-							<strong>₦0</strong>
+							<strong>₦{numberWithCommas(totalDiscount)}</strong>
 						</div>
 						<div>
 							<span>Total Amount Before Discount</span>
@@ -46,7 +55,9 @@ const Cart = ({ products }: { products: any }) => {
 					</div>
 					<div className="dark">
 						<span>Total Amount</span>
-						<strong>₦{numberWithCommas(totalAmount)}</strong>
+						<strong>
+							₦{numberWithCommas(totalAmount - totalDiscount)}
+						</strong>
 					</div>
 				</div>
 			</div>

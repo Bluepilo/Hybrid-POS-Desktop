@@ -101,7 +101,30 @@ export const HeaderStyles = styled.div`
 			}
 		}
 
-		button {
+		button.sync {
+			border: 0;
+			outline: 0;
+			background: none;
+			background: #000d33;
+			margin-right: 20px;
+			font-size: 0.8rem;
+			color: #fff;
+			padding: 5px 10px;
+			border-radius: 5px;
+
+			span {
+				margin-right: 5px;
+			}
+
+			b {
+				background: rgba(255, 185, 0, 1);
+				color: #000d33;
+				padding: 2px 5px;
+				border-radius: 5px;
+			}
+		}
+
+		button.hint {
 			border: 0;
 			outline: 0;
 			background: none;

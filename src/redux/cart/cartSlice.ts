@@ -76,6 +76,48 @@ export const cartSlice = createSlice({
 				}
 			}
 		},
+		updateProductDiscount: (
+			state,
+			action: PayloadAction<{
+				cartId: string;
+				productId: number;
+				discount: number;
+			}>
+		) => {
+			const cart = state.cartItems.find(
+				(c) => c.cartId === action.payload.cartId
+			);
+			if (cart) {
+				const product = cart.products.find(
+					(p) => p.id === action.payload.productId
+				);
+				if (product) {
+					product.discount = action.payload.discount;
+				}
+			}
+		},
+		updateProductDiscountType: (
+			state,
+			action: PayloadAction<{
+				cartId: string;
+				productId: number;
+				isPercent: boolean;
+			}>
+		) => {
+			const cart = state.cartItems.find(
+				(c) => c.cartId === action.payload.cartId
+			);
+			if (cart) {
+				const product = cart.products.find(
+					(p) => p.id === action.payload.productId
+				);
+				if (product) {
+					product.discountType = action.payload.isPercent
+						? "percent"
+						: "currency";
+				}
+			}
+		},
 		removeProductCart: (
 			state,
 			action: PayloadAction<{
@@ -111,6 +153,8 @@ export const {
 	addProductToCart,
 	updateCartField,
 	updateProductQuantity,
+	updateProductDiscount,
+	updateProductDiscountType,
 	removeProductCart,
 	removeFromCart,
 } = cartSlice.actions;

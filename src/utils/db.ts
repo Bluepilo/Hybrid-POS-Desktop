@@ -96,6 +96,19 @@ export async function initDB() {
 			)
 		`);
 
+		await db.execute(`
+			CREATE TABLE IF NOT EXISTS transactions (
+				id INTEGER PRIMARY KEY,
+				actorId INTEGER,
+				type TEXT,
+				amount REAL,
+				isCredit BOOLEAN,
+				createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+				updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY (actorId) REFERENCES customers(customerId)
+			)
+		`);
+
 		console.log("✅ Tables created successfully.");
 		return db;
 	} catch (err) {

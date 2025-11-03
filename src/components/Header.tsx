@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "../utils/hooks";
 import { createCart, removeFromCart } from "../redux/cart/cartSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import { generateId } from "../utils/data";
+import dateFormat from "dateformat";
 
 const Header = () => {
 	const params = useParams();
@@ -19,6 +20,7 @@ const Header = () => {
 
 	const { user } = useAppSelector((state) => state.auth);
 	const { cartItems } = useAppSelector((state) => state.cart);
+	const { syncCount } = useAppSelector((state) => state.app);
 
 	const [openMenu, setOpenMenu] = useState(false);
 
@@ -71,6 +73,12 @@ const Header = () => {
 					</div>
 				</div>
 				<div className="right-nav">
+					{syncCount > 0 && (
+						<button className="sync">
+							<span>Sync</span>
+							<b>0</b>
+						</button>
+					)}
 					<div className="user">
 						<div className="name">
 							<span className="status" />
@@ -79,9 +87,11 @@ const Header = () => {
 								{user?.firstName} {user?.lastName}
 							</span>
 						</div>
-						<div className="time">Sept 10, 2025, 05:00 PM</div>
+						<div className="time">
+							{dateFormat(Date.now(), "mmm dd, yyyy")}
+						</div>
 					</div>
-					<button>
+					<button className="hint">
 						<FaQuestionCircle />
 						<span>Hint</span>
 					</button>

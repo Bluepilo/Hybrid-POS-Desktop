@@ -6,9 +6,12 @@ import { useAppSelector } from "../../../utils/hooks";
 import { syncDBShop } from "../../../utils/db/dbUpdate";
 import { useState } from "react";
 import { displayError } from "../../../utils/display";
+import LoginModal from "../../../components/LoginModal";
 
 const Settings = () => {
 	const [load, setLoad] = useState(false);
+	const [openSession, setOpenSession] = useState(false);
+
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const syncData = async () => {
@@ -19,7 +22,12 @@ const Settings = () => {
 				setLoad(false);
 			} catch (err) {
 				setLoad(false);
-				displayError(err, true);
+				let message = displayError(err, false);
+				if (message?.includes("Session expired")) {
+					setOpenSession(true);
+				} else {
+					displayError(err, true);
+				}
 			}
 		}
 	};
@@ -143,6 +151,7 @@ const Settings = () => {
 					</div>
 				</div>
 			</div>
+			<LoginModal open={openSession} toggleLogin={setOpenSession} />
 		</div>
 	);
 };
