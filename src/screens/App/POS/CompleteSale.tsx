@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { numberWithCommas } from "../../../utils/currency";
 import { displayError } from "../../../utils/display";
 import { insertSaleWithProducts } from "../../../utils/db/dbUpdate";
+import { increaseSync } from "../../../redux/app/appSlice";
 
 const CompleteSale = ({ cartId }: { cartId: any }) => {
 	const dispatch = useAppDispatch();
@@ -26,6 +27,15 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 
 	let totalAmount =
 		cartInfo?.products?.reduce((a, b) => a + b.price * b.quantity, 0) || 0;
+
+	let totalDiscount = cartInfo?.products.reduce(
+		(a: any, b: any) =>
+			a +
+			(b.discountType === "currency"
+				? b.discount || 0
+				: ((b.discount || 0) / 100) * (b.price * b.quantity)),
+		0
+	);
 
 	let customerType = cartInfo?.isSubdealer ? subdealers : customers;
 
@@ -76,9 +86,10 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 		if (find) {
 			return {
 				name: find.name,
-				phone: find.phone || find.email,
+				phone: find.phone,
 				balance: find.balance,
 				creditLimit: find.creditLimit,
+				email: find.email,
 			};
 		} else {
 			return { name: "", phone: "", balance: 0, creditLimit: null };
@@ -86,10 +97,9 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 	};
 
 	const getMinAmountDue = () => {
-		let discountApplied = 0;
 		const minimumAmountDue =
 			totalAmount -
-			discountApplied -
+			totalDiscount -
 			(Number(loadCustomerInfo().balance) +
 				Number(loadCustomerInfo()?.creditLimit || 0));
 
@@ -104,39 +114,52 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 		}
 	};
 
+	const balanceAfter = () => {
+		let bal = loadCustomerInfo().balance;
+		let amountPaid = Number(received.replace(/,/g, ""));
+
+		return bal + amountPaid;
+	};
+
 	const submitHandler = async () => {
 		if (!customerInfo) {
 			displayError("Please Select a Customer", true);
 			return;
 		}
 
-		if (!received) {
-			displayError("Provide the amount Paid", true);
+		let amountPaid = Number(received.replace(/,/g, ""));
+
+		if (minAmount > amountPaid) {
+			displayError("Not Enough Balance", true);
 			return;
 		}
-
 		try {
-			setLoad(true);
 			let payload = {
 				actorId: customerInfo,
 				subdealerId: cartInfo?.isSubdealer ? customerInfo : "",
 				customerId: cartInfo?.isSubdealer ? "" : customerInfo,
 				isSubdealer: cartInfo?.isSubdealer ? true : false,
+				customerName: loadCustomerInfo().name,
+				customerEmail: loadCustomerInfo().email,
+				customerPhoneNo: loadCustomerInfo().phone,
 				products: cartInfo?.products,
 				isDeposit: false,
 				comment: notes,
 				amountPaid: Number(received.replace(/,/g, "")),
-				discount: 0,
-				amountExpected: totalAmount - 0,
+				discount: totalDiscount,
+				amountExpected: totalAmount - totalDiscount,
 				status: cartInfo?.isAdvanced ? "preorder" : "complete",
 				shopId: shopInfo?.id,
 				paymentMethodId: 3,
 				hybridRef: cartId,
 				userId: user.userId,
 				syncStatus: "pending",
+				balance: balanceAfter(),
 			};
+			setLoad(true);
 			await insertSaleWithProducts(payload);
 			dispatch(removeFromCart(cartId));
+			dispatch(increaseSync());
 			navigate("/app/sales");
 			setLoad(false);
 		} catch (err) {
@@ -296,7 +319,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 					<ViewTotal className="mt-3" style={{ background: "#000" }}>
 						<h6 style={{ color: "#FFF" }}>Sales Total:</h6>
 						<h5 style={{ color: "rgba(255, 185, 0, 1)" }}>
-							₦ {numberWithCommas(totalAmount)}
+							₦ {numberWithCommas(totalAmount - totalDiscount)}
 						</h5>
 					</ViewTotal>
 				</div>

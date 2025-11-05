@@ -76,7 +76,7 @@ const Header = () => {
 					{syncCount > 0 && (
 						<button className="sync">
 							<span>Sync</span>
-							<b>0</b>
+							<b>{syncCount}</b>
 						</button>
 					)}
 					<div className="user">

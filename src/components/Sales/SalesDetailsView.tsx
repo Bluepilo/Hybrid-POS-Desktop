@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { TableArea } from "../../styles/basic.styles";
 import { TableDiv } from "../../styles/table.styles";
 import { numberWithCommas } from "../../utils/currency";
-import { MdPending } from "react-icons/md";
+import { MdCheckCircle, MdError, MdPending } from "react-icons/md";
 import dateFormat from "dateformat";
 
 const SalesDetailsView = ({ list }: { list: any }) => {
@@ -42,8 +42,21 @@ const SalesDetailsView = ({ list }: { list: any }) => {
 								</td>
 								<td>Hybrid App</td>
 								<td>
-									<MdPending size={20} color="orange" />
-									<span>Pending</span>
+									{li.syncStatus === "success" ? (
+										<MdCheckCircle
+											size={20}
+											color="green"
+										/>
+									) : li.syncStatus === "failed" ? (
+										<MdError size={20} color="red" />
+									) : (
+										<MdPending size={20} color="orange" />
+									)}
+									<span
+										style={{ textTransform: "capitalize" }}
+									>
+										{li.syncStatus}
+									</span>
 								</td>
 							</tr>
 						))}

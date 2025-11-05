@@ -21,10 +21,16 @@ const fetchSubdealers = async (id: string) => {
 	return data?.data;
 };
 
+const makeSale = async (obj: any) => {
+	const { data } = await apiRequest("baseUrl").post(`/sale/make-sale`, obj);
+	return data.data;
+};
+
 const appService = {
 	fetchProducts,
 	fetchCustomers,
 	fetchSubdealers,
+	makeSale,
 };
 
 export default appService;

@@ -329,12 +329,19 @@ const SalesDetails = () => {
 								</TableDiv>
 							</div>
 							<SyncTable>
-								<div className="head failed">
-									Sync Failed - Demo Section
+								<div className={`head ${details.syncStatus}`}>
+									Sync {details.syncStatus} -{" "}
+									{details?.syncFailed || ""}
 								</div>
 								<div className="bdy">
 									<div>
-										<span>Sync Failed</span>
+										<span
+											style={{
+												textTransform: "capitalize",
+											}}
+										>
+											Sync {details.syncStatus}
+										</span>
 										<p>
 											<b>Last attempt:</b>{" "}
 											{dateFormat(
@@ -348,10 +355,12 @@ const SalesDetails = () => {
 										{details.hybridRef}
 									</div>
 								</div>
-								<button>
-									<FiRefreshCcw />
-									<span>Retry Sync</span>
-								</button>
+								{details.syncStatus !== "success" && (
+									<button>
+										<FiRefreshCcw />
+										<span>Retry Sync</span>
+									</button>
+								)}
 							</SyncTable>
 						</CardBox>
 					</div>

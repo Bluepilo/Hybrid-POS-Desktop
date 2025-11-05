@@ -463,6 +463,10 @@ export const SyncTable = styled.div`
 		&.failed {
 			background: red;
 		}
+
+		&.pending {
+			background: orange;
+		}
 	}
 	.bdy {
 		margin-bottom: 10px;

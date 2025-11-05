@@ -30,51 +30,54 @@ export const fetchAllSales = async ({
 	// 1️⃣ Count total matching records
 	const totalResult = await db.select<any[]>(
 		`
-    SELECT COUNT(DISTINCT s.id) AS total
-    FROM sales s
-    LEFT JOIN customers c ON s.actorId = c.customerId
-    LEFT JOIN users u ON s.userId = u.userId
-    ${whereSQL}
-    `,
+		SELECT COUNT(DISTINCT s.id) AS total
+		FROM sales s
+		LEFT JOIN customers c ON s.actorId = c.customerId
+		LEFT JOIN users u ON s.userId = u.userId
+		${whereSQL}
+		`,
 		params
 	);
 
 	const total = totalResult[0]?.total || 0;
 	const totalPages = Math.ceil(total / limit);
 
-	// 2️⃣ Fetch paginated data
+	// 2️⃣ Fetch paginated data with product names
 	const rows = await db.select<any[]>(
 		`
-    SELECT
-      s.*,
-      c.name AS actorName,
-      u.name AS userName,
-      json_group_array(
-        json_object(
-          'id', sp.id,
-          'productId', sp.productId,
-          'quantity', sp.quantity,
-          'price', sp.price
-        )
-      ) AS products
-    FROM sales s
-    LEFT JOIN customers c ON s.actorId = c.customerId
-    LEFT JOIN users u ON s.userId = u.userId
-    LEFT JOIN sales_products sp ON sp.saleId = s.id
-    ${whereSQL}
-    GROUP BY s.id
-    ORDER BY s.createdAt DESC
-    LIMIT ? OFFSET ?
-    `,
+		SELECT
+			s.*,
+			c.name AS actorName,
+			u.name AS userName,
+			json_group_array(
+				json_object(
+					'id', sp.productId,
+					'productId', sp.productId,
+					'name', p.name,
+					'quantity', sp.quantity,
+					'price', sp.price
+				)
+			) AS products
+		FROM sales s
+		LEFT JOIN customers c ON s.actorId = c.customerId
+		LEFT JOIN users u ON s.userId = u.userId
+		LEFT JOIN sales_products sp ON sp.saleId = s.id
+		LEFT JOIN products p ON p.productId = sp.productId
+		${whereSQL}
+		GROUP BY s.id
+		ORDER BY s.createdAt DESC
+		LIMIT ? OFFSET ?
+		`,
 		[...params, limit, offset]
 	);
 
+	// 3️⃣ Parse products from JSON
 	const sales = rows.map((row) => ({
 		...row,
 		products: row.products ? JSON.parse(row.products) : [],
 	}));
 
-	// 3️⃣ Return structured pagination response
+	// 4️⃣ Return structured pagination response
 	return {
 		data: sales,
 		currentPage: page,
@@ -135,6 +138,7 @@ export const getSalesProducts = async ({
       s.hybridRef AS saleRef,
       s.actorId,
       s.userId,
+	  s.syncStatus,
       s.createdAt AS saleCreatedAt,
       c.name AS actorName
     FROM sales_products sp
@@ -162,6 +166,7 @@ export const getSalesProducts = async ({
 		saleCreatedAt: row.saleCreatedAt,
 		createdAt: row.createdAt,
 		updatedAt: row.updatedAt,
+		syncStatus: row.syncStatus,
 	}));
 
 	// 4️⃣ Return structured pagination response
@@ -264,6 +269,8 @@ export const getSaleByUniqueRef = async (hybridRef: string) => {
 		isSubdealer: sale.isSubdealer,
 		createdAt: sale.createdAt,
 		updatedAt: sale.updatedAt,
+		comment: sale.comment,
+		syncStatus: sale.syncStatus,
 		actor: {
 			id: sale.customerId,
 			name: sale.actorName,

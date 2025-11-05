@@ -3,6 +3,7 @@ import { getDB } from "../db";
 
 export const insertSaleWithProducts = async (sale: any) => {
 	const db = getDB();
+
 	try {
 		await db.execute("BEGIN TRANSACTION");
 
@@ -18,8 +19,13 @@ export const insertSaleWithProducts = async (sale: any) => {
 				userId,
 				syncStatus,
 				comment,
-				discount
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				discount,
+				customerName,
+				customerPhoneNo,
+				customerEmail,
+				isDeposit,
+				paymentMethodId
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			[
 				sale.shopId,
 				sale.amountPaid,
@@ -32,6 +38,11 @@ export const insertSaleWithProducts = async (sale: any) => {
 				sale.syncStatus,
 				sale.comment,
 				sale.discount,
+				sale.customerName,
+				sale.customerPhoneNo,
+				sale.customerEmail,
+				sale.isDeposit,
+				sale.paymentMethodId,
 			]
 		);
 
@@ -49,6 +60,19 @@ export const insertSaleWithProducts = async (sale: any) => {
 					price
 				) VALUES (?, ?, ?, ?)`,
 				[saleId, p.id, p.quantity, p.price]
+			);
+		}
+
+		if (sale.balance > 0) {
+			const customerId = sale.isSubdealer
+				? sale.subdealerId
+				: sale.customerId;
+
+			await db.execute(
+				`UPDATE customers
+				 SET balance = balance + ?
+				 WHERE customerId = ?`,
+				[sale.balance, customerId]
 			);
 		}
 
@@ -214,6 +238,25 @@ export const syncDBShop = async (shopId: string) => {
 	let resS = await appService.fetchSubdealers(shopId);
 	if (resS?.rows?.length > 0) {
 		await upsertCustomers(resS.rows, true);
+	}
+};
+
+export const updateSaleSyncStatus = async (
+	saleId: number,
+	syncStatus: string,
+	reason?: string
+) => {
+	const db = getDB();
+	try {
+		await db.execute(
+			`UPDATE sales
+			 SET syncStatus = ?, failReason = ?
+			 WHERE id = ?`,
+			[syncStatus, reason || null, saleId]
+		);
+	} catch (err) {
+		console.error("Error updating syncStatus:", err);
+		throw err;
 	}
 };
 
