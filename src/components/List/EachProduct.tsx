@@ -1,11 +1,13 @@
 import { ProductStyle } from "../../styles/pos.styles";
 import Img from "../../assets/images/image.png";
 import { numberWithCommas } from "../../utils/currency";
-import { useAppDispatch } from "../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { addProductToCart } from "../../redux/cart/cartSlice";
 
 const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 	const dispatch = useAppDispatch();
+
+	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const cartHandler = () => {
 		dispatch(
@@ -34,7 +36,9 @@ const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 						: "Out of Stock"}
 				</div>
 				<h5>{product.name}</h5>
-				<h6>NGN {numberWithCommas(product.price)}</h6>
+				<h6>
+					{shopInfo?.currency} {numberWithCommas(product.price)}
+				</h6>
 			</div>
 		</ProductStyle>
 	);

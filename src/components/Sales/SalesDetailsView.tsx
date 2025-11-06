@@ -4,8 +4,11 @@ import { TableDiv } from "../../styles/table.styles";
 import { numberWithCommas } from "../../utils/currency";
 import { MdCheckCircle, MdError, MdPending } from "react-icons/md";
 import dateFormat from "dateformat";
+import { useAppSelector } from "../../utils/hooks";
 
 const SalesDetailsView = ({ list }: { list: any }) => {
+	const { shopInfo } = useAppSelector((state) => state.auth);
+
 	return (
 		<TableArea>
 			<div className="table-responsive h-100">
@@ -38,7 +41,8 @@ const SalesDetailsView = ({ list }: { list: any }) => {
 								</td>
 								<td>{li.actorName}</td>
 								<td>
-									₦{numberWithCommas(li.price * li.quantity)}
+									{shopInfo?.currency}
+									{numberWithCommas(li.price * li.quantity)}
 								</td>
 								<td>Hybrid App</td>
 								<td>

@@ -2,8 +2,11 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "../../utils/currency";
+import { useAppSelector } from "../../utils/hooks";
 
 const EachCustomer = ({ item }: { item: any }) => {
+	const { shopInfo } = useAppSelector((state) => state.auth);
+
 	return (
 		<tr>
 			<td className="link">
@@ -11,8 +14,14 @@ const EachCustomer = ({ item }: { item: any }) => {
 			</td>
 			<td>{item.phone}</td>
 			<td>{item.email}</td>
-			<td>₦{formatCurrency(item.balance)}</td>
-			<td>₦{formatCurrency(item.creditLimit)}</td>
+			<td>
+				{shopInfo?.currency}
+				{formatCurrency(item.balance)}
+			</td>
+			<td>
+				{shopInfo?.currency}
+				{formatCurrency(item.creditLimit)}
+			</td>
 			<td className="status">
 				<span className="active">Active</span>
 			</td>

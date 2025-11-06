@@ -17,6 +17,7 @@ const ListView = () => {
 
 	const { products } = useAppSelector((state) => state.app);
 	const { cartItems } = useAppSelector((state) => state.cart);
+	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const productsInCart =
 		cartItems.find((cart) => cart.cartId === params?.tabId)?.products || [];
@@ -127,12 +128,16 @@ const ListView = () => {
 					<div>
 						<span>Total Amount</span>
 						<strong style={{ color: "#FFB500", fontSize: "2rem" }}>
-							₦{numberWithCommas(totalAmount - totalDiscount)}
+							{shopInfo?.currency}
+							{numberWithCommas(totalAmount - totalDiscount)}
 						</strong>
 					</div>
 					<div>
 						<span>Total Discount</span>
-						<strong>₦{numberWithCommas(totalDiscount)}</strong>
+						<strong>
+							{shopInfo?.currency}
+							{numberWithCommas(totalDiscount)}
+						</strong>
 					</div>
 					<div>
 						<span>Add VAT</span>

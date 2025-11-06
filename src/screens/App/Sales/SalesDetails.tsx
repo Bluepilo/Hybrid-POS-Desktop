@@ -102,7 +102,7 @@ const SalesDetails = () => {
 								<div>
 									<span>Total in Wallets:</span>
 									<strong>
-										₦
+										{shopInfo?.currency}
 										{numberWithCommas(
 											details.actor.balance
 										)}
@@ -111,7 +111,7 @@ const SalesDetails = () => {
 								<div>
 									<span>Credit Limit:</span>
 									<strong>
-										₦
+										{shopInfo?.currency}
 										{numberWithCommas(
 											details.actor.creditLimit
 										)}
@@ -179,7 +179,8 @@ const SalesDetails = () => {
 												</td>
 												<td>{p.quantity}</td>
 												<td>
-													₦{numberWithCommas(p.price)}
+													{shopInfo?.currency}
+													{numberWithCommas(p.price)}
 												</td>
 											</tr>
 										))}
@@ -195,7 +196,7 @@ const SalesDetails = () => {
 												)}
 											</td>
 											<td>
-												₦
+												{shopInfo?.currency}
 												{numberWithCommas(
 													details.products?.reduce(
 														(a: any, b: any) =>
@@ -211,7 +212,10 @@ const SalesDetails = () => {
 							<TotalBox className="mt-3">
 								<div>
 									<span>Discount Amount</span>
-									<strong>₦0.00</strong>
+									<strong>
+										{shopInfo?.currency}
+										{formatCurrency(details.discount)}
+									</strong>
 								</div>
 								<div>
 									<span>VAT Amount</span>
@@ -220,14 +224,14 @@ const SalesDetails = () => {
 								<div>
 									<span>Discounted Total Sales</span>
 									<strong>
-										₦
+										{shopInfo?.currency}
 										{formatCurrency(details.amountExpected)}
 									</strong>
 								</div>
 								<div>
 									<span>Actual Amount Paid</span>
 									<strong>
-										₦
+										{shopInfo?.currency}
 										{formatCurrency(
 											details.actualAmountPaid
 										)}
@@ -311,7 +315,7 @@ const SalesDetails = () => {
 									<tbody>
 										<tr>
 											<td>
-												₦
+												{shopInfo?.currency}
 												{formatCurrency(
 													details.amountExpected
 												)}

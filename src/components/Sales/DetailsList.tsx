@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { numberWithCommas } from "../../utils/currency";
 import dateFormat from "dateformat";
+import { useAppSelector } from "../../utils/hooks";
 
 const DetailsList = () => {
 	const navigate = useNavigate();
@@ -12,6 +13,8 @@ const DetailsList = () => {
 	const params = useParams();
 
 	const [list, setList] = useState<any>([]);
+
+	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	useEffect(() => {
 		listSales();
@@ -47,7 +50,10 @@ const DetailsList = () => {
 						<div className="content">
 							<FlexBetween>
 								<h6>{li.actorName}</h6>
-								<h6>₦{numberWithCommas(li.amountPaid)}</h6>
+								<h6>
+									{shopInfo?.currency}
+									{numberWithCommas(li.amountPaid)}
+								</h6>
 							</FlexBetween>
 							<div className="d-flex">
 								<span>{li.hybridRef?.toUpperCase()}</span>

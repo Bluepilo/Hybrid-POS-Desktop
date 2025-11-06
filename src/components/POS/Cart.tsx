@@ -2,13 +2,15 @@ import { useParams } from "react-router-dom";
 import { updateCartField } from "../../redux/cart/cartSlice";
 import { CartDisplay, VatBtn } from "../../styles/pos.styles";
 import { numberWithCommas } from "../../utils/currency";
-import { useAppDispatch } from "../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import EachCart from "../List/EachCart";
 
 const Cart = ({ products }: { products: any }) => {
 	const params = useParams();
 
 	const dispatch = useAppDispatch();
+
+	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const proceedHandler = () => {
 		dispatch(
@@ -46,17 +48,24 @@ const Cart = ({ products }: { products: any }) => {
 					<div className="yellow">
 						<div>
 							<span>Total Discount</span>
-							<strong>₦{numberWithCommas(totalDiscount)}</strong>
+							<strong>
+								{shopInfo?.currency}
+								{numberWithCommas(totalDiscount)}
+							</strong>
 						</div>
 						<div>
 							<span>Total Amount Before Discount</span>
-							<strong>₦{numberWithCommas(totalAmount)}</strong>
+							<strong>
+								{shopInfo?.currency}
+								{numberWithCommas(totalAmount)}
+							</strong>
 						</div>
 					</div>
 					<div className="dark">
 						<span>Total Amount</span>
 						<strong>
-							₦{numberWithCommas(totalAmount - totalDiscount)}
+							{shopInfo?.currency}
+							{numberWithCommas(totalAmount - totalDiscount)}
 						</strong>
 					</div>
 				</div>

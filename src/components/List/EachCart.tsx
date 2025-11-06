@@ -2,7 +2,7 @@ import { FaCaretDown, FaRegTrashAlt } from "react-icons/fa";
 import { CartDiscount, CartItem } from "../../styles/pos.styles";
 import { FaSquareMinus, FaSquarePlus } from "react-icons/fa6";
 import { numberWithCommas } from "../../utils/currency";
-import { useAppDispatch } from "../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import {
 	removeProductCart,
 	updateProductDiscount,
@@ -21,6 +21,8 @@ const EachCart = ({ item }: { item: any }) => {
 
 	const [value, setValue] = useState(`${item.quantity}`);
 	const [discount, setDiscount] = useState(`${item.discount || 0}`);
+
+	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const deleteHandler = () => {
 		dispatch(removeProductCart({ cartId, productId: item.id }));
@@ -81,7 +83,10 @@ const EachCart = ({ item }: { item: any }) => {
 			<div className="btm-details">
 				<div>
 					<p>Total Unit Price</p>
-					<h6>₦{numberWithCommas(item.price * item.quantity)}</h6>
+					<h6>
+						{shopInfo?.currency}
+						{numberWithCommas(item.price * item.quantity)}
+					</h6>
 				</div>
 				<CartDiscount>
 					<span className="em">Discount</span>

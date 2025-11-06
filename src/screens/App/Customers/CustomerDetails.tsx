@@ -10,11 +10,14 @@ import { TbDevicesDown } from "react-icons/tb";
 import { TableDiv } from "../../../styles/table.styles";
 import EachTransactionReport from "../../../components/List/EachTransactionReport";
 import Paginate from "../../../components/Paginate";
+import { useAppSelector } from "../../../utils/hooks";
 
 const CustomerDetails = () => {
 	const navigate = useNavigate();
 
 	const [dateType, setDateType] = useState("");
+
+	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	return (
 		<div className="d-flex flex-column h-100">

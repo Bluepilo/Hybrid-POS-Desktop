@@ -319,7 +319,8 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 					<ViewTotal className="mt-3" style={{ background: "#000" }}>
 						<h6 style={{ color: "#FFF" }}>Sales Total:</h6>
 						<h5 style={{ color: "rgba(255, 185, 0, 1)" }}>
-							₦ {numberWithCommas(totalAmount - totalDiscount)}
+							{shopInfo?.currency}{" "}
+							{numberWithCommas(totalAmount - totalDiscount)}
 						</h5>
 					</ViewTotal>
 				</div>

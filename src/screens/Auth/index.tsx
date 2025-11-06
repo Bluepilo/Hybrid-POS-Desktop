@@ -9,6 +9,7 @@ import { login, loginOffline } from "../../redux/auth/authSlice";
 import { Spinner } from "react-bootstrap";
 import { generateId } from "../../utils/data";
 import { hasInternet } from "../../utils/internet";
+import { createCart } from "../../redux/cart/cartSlice";
 
 const Auth = () => {
 	const dispatch = useAppDispatch();
@@ -52,6 +53,9 @@ const Auth = () => {
 			if (shopInfo?.id) {
 				const id = generateId();
 				const posId = cartItems?.length > 0 ? cartItems[0].cartId : id;
+				if (cartItems.length === 0) {
+					dispatch(createCart(id));
+				}
 				navigate(`/app/pos/${posId}`);
 			} else {
 				navigate("/connect");

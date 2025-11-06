@@ -26,51 +26,42 @@ const Sales = () => {
 		listVSales();
 	}, []);
 
-	useEffect(() => {
-		syncAllSales();
-	}, [vlist]);
-
 	const listSales = async () => {
 		try {
 			let res = await getSalesProducts({});
 			setdList(res);
-		} catch (err) {
-			console.log(err, "err");
-		}
+		} catch (err) {}
 	};
 
 	const listVSales = async () => {
 		try {
 			let res = await fetchAllSales({});
 			setvList(res);
-		} catch (err) {
-			console.log(err, "err");
-		}
+			syncAllSales(res);
+		} catch (err) {}
 	};
 
-	const syncAllSales = async () => {
-		if (vlist?.data?.length > 0) {
-			const promises = vlist.data.map(async (sale: any) => {
+	const syncAllSales = async (salesVals: any) => {
+		if (salesVals?.data?.length > 0) {
+			const promises = salesVals.data.map(async (sale: any) => {
 				if (sale.syncStatus !== "success" && user.id == sale.userId) {
 					try {
-						await appService.makeSale(sale);
+						await appService.makeSale({
+							...sale,
+							customerId: sale.actorId,
+							status: "complete",
+							isDeposit: false,
+						});
 						await updateSaleSyncStatus(sale.id, "success");
 						dispatch(reduceSync());
 					} catch (err) {
-						let msg = displayError(err, false);
+						let msg = displayError(err, true);
 						await updateSaleSyncStatus(sale.id, "failed", msg);
 					}
-				} else {
-					console.log(
-						"Cannot Proceed",
-						sale.syncStatus !== "success"
-					);
 				}
 			});
 
 			await Promise.allSettled(promises);
-
-			listSales();
 		}
 	};
 

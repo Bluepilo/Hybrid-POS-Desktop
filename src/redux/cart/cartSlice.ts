@@ -18,6 +18,7 @@ export const cartSlice = createSlice({
 				discount: 0,
 				products: [],
 			};
+			console.log(payload, "Payload");
 			state.cartItems
 				? state.cartItems.push(payload)
 				: (state.cartItems = [payload]);
@@ -135,10 +136,6 @@ export const cartSlice = createSlice({
 			}
 		},
 		removeFromCart: (state, action: PayloadAction<string>) => {
-			if (state.cartItems.length === 1) {
-				const id = generateId();
-				createCart(id);
-			}
 			state.cartItems = state.cartItems.filter(
 				(cart) => cart.cartId !== action.payload
 			);

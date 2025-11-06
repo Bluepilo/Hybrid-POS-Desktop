@@ -75,7 +75,6 @@ export const loginOffline = createAsyncThunk(
 
 			return user;
 		} catch (error) {
-			console.log(error, "err");
 			const message = displayError(error, true);
 			return thunkAPI.rejectWithValue(message);
 		}
@@ -87,9 +86,11 @@ export const connectShop = createAsyncThunk(
 	async (code: string, thunkAPI: any) => {
 		try {
 			const res = await authService.connectShop(code);
-			console.log(res, "CODeRes");
-			if (Array.isArray(res) && res.length > 0) {
-				return res[0];
+			if (res?.shop) {
+				return {
+					...res.shop,
+					currency: res.business?.currency?.symbol,
+				};
 			} else {
 				displayError("No Shop is connected.", true);
 				return {};
@@ -120,6 +121,9 @@ export const authSlice = createSlice({
 			state.user = null;
 			state.load = false;
 		},
+		clearShop: (state) => {
+			state.shopInfo = null;
+		},
 	},
 	extraReducers: (builder) => {
 		builder.addCase(login.pending, (state) => {
@@ -149,6 +153,6 @@ export const authSlice = createSlice({
 	},
 });
 
-export const { clearLoad, logoutFromStorage } = authSlice.actions;
+export const { clearLoad, logoutFromStorage, clearShop } = authSlice.actions;
 
 export default authSlice.reducer;
