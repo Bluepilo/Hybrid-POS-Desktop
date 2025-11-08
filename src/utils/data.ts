@@ -8,4 +8,14 @@ const generateId = (length = 6) => {
 	return id;
 };
 
-export { generateId };
+const getInitials = (name: string) => {
+	return (name || "")
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean)
+		.map((part) => part[0])
+		.join("")
+		.toUpperCase();
+};
+
+export { generateId, getInitials };

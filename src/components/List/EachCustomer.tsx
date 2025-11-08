@@ -10,7 +10,9 @@ const EachCustomer = ({ item }: { item: any }) => {
 	return (
 		<tr>
 			<td className="link">
-				<Link to={`${item.customerId}`}>{item.name}</Link>
+				<Link to={`${item.customerId}`} state={item}>
+					{item.name}
+				</Link>
 			</td>
 			<td>{item.phone}</td>
 			<td>{item.email}</td>

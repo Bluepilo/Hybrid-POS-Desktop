@@ -10,6 +10,14 @@ import { createCart, removeFromCart } from "../redux/cart/cartSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import { generateId } from "../utils/data";
 import dateFormat from "dateformat";
+import LoginModal from "./LoginModal";
+import appService from "../redux/app/appService";
+import { updateSaleSyncStatus } from "../utils/db/dbUpdate";
+import { reduceSync } from "../redux/app/appSlice";
+import { displayError } from "../utils/display";
+import authService from "../redux/auth/authService";
+import { fetchAllSales } from "../utils/db/dbFetch";
+import { Spinner } from "react-bootstrap";
 
 const Header = () => {
 	const params = useParams();
@@ -22,7 +30,9 @@ const Header = () => {
 	const { cartItems } = useAppSelector((state) => state.cart);
 	const { syncCount } = useAppSelector((state) => state.app);
 
+	const [loadButton, setLoadButton] = useState(false);
 	const [openMenu, setOpenMenu] = useState(false);
+	const [openSession, setOpenSession] = useState(false);
 
 	const addTab = () => {
 		const id = generateId();
@@ -36,6 +46,48 @@ const Header = () => {
 			// Alert the user to clear cart first.
 		} else {
 			dispatch(removeFromCart(id));
+		}
+	};
+
+	const checkConnection = async () => {
+		try {
+			setLoadButton(true);
+			await authService.getProfile();
+			let res = await fetchAllSales({});
+			syncAllSales(res);
+		} catch (err) {
+			setLoadButton(false);
+			let message = displayError(err, false);
+			if (message?.includes("Session expired")) {
+				setOpenSession(true);
+			} else {
+				displayError(err, true);
+			}
+		}
+	};
+
+	const syncAllSales = async (salesVals: any) => {
+		if (salesVals?.data?.length > 0) {
+			const promises = salesVals.data.map(async (sale: any) => {
+				if (sale.syncStatus !== "success" && user.id == sale.userId) {
+					try {
+						await appService.makeSale({
+							...sale,
+							customerId: sale.actorId,
+							status: "complete",
+							isDeposit: false,
+						});
+						await updateSaleSyncStatus(sale.id, "success");
+						dispatch(reduceSync());
+					} catch (err) {
+						let msg = displayError(err, false);
+						await updateSaleSyncStatus(sale.id, "failed", msg);
+					}
+				}
+			});
+
+			await Promise.allSettled(promises);
+			setLoadButton(false);
 		}
 	};
 
@@ -74,9 +126,21 @@ const Header = () => {
 				</div>
 				<div className="right-nav">
 					{syncCount > 0 && (
-						<button className="sync">
+						<button
+							disabled={loadButton}
+							className="sync"
+							onClick={checkConnection}
+						>
 							<span>Sync</span>
 							<b>{syncCount}</b>
+							{loadButton && (
+								<Spinner
+									animation="border"
+									color={"#FFF"}
+									style={{ marginLeft: "10px" }}
+									size="sm"
+								/>
+							)}
 						</button>
 					)}
 					<div className="user">
@@ -98,6 +162,7 @@ const Header = () => {
 				</div>
 			</HeaderStyles>
 			<Sidebar open={openMenu} onClose={() => setOpenMenu(false)} />
+			<LoginModal open={openSession} toggleLogin={setOpenSession} />
 		</>
 	);
 };

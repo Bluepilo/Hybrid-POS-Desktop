@@ -1,7 +1,7 @@
 import { FaArrowLeft, FaCaretRight } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SalesInfo, TableArea, TitleCrumb } from "../../../styles/basic.styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputField from "../../../components/InputField";
 import Icon from "../../../assets/images/money.svg";
 import Button from "../../../components/Button";
@@ -10,16 +10,26 @@ import { TbDevicesDown } from "react-icons/tb";
 import { TableDiv } from "../../../styles/table.styles";
 import EachTransactionReport from "../../../components/List/EachTransactionReport";
 import Paginate from "../../../components/Paginate";
+import { getInitials } from "../../../utils/data";
 import { useAppSelector } from "../../../utils/hooks";
-
+import { formatCurrency } from "../../../utils/currency";
 const CustomerDetails = () => {
 	const navigate = useNavigate();
 
-	const [dateType, setDateType] = useState("");
+	const stateInfo = useLocation()?.state;
 
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
-	return (
+	const [dateType, setDateType] = useState("");
+	const [details, setDetails] = useState<any>(null);
+
+	useEffect(() => {
+		if (stateInfo?.id) {
+			setDetails(stateInfo);
+		}
+	}, [stateInfo]);
+
+	return details?.id ? (
 		<div className="d-flex flex-column h-100">
 			<TitleCrumb>
 				<h3>Walk-In Customer Wallet</h3>
@@ -30,7 +40,7 @@ const CustomerDetails = () => {
 					</button>
 					<b>Walk-In Customer</b>
 					<FaCaretRight />
-					<span className="ms-2">Sugar Jnr</span>
+					<span className="ms-2">{details.name}</span>
 				</div>
 			</TitleCrumb>
 			<div className="row mt-3">
@@ -70,12 +80,12 @@ const CustomerDetails = () => {
 				<div className="col-lg-7">
 					<SalesInfo className="shadow-sm mt-2 shade">
 						<div className="first">
-							<span>SB</span>
+							<span>{getInitials(details.name)}</span>
 							<div>
-								<h6>Sugar Boy Jnr</h6>
-								<p>08011122333</p>
-								<p>email@email.com</p>
-								<p>5, Kola street.</p>
+								<h6>{details.name}</h6>
+								<p>{details.phone}</p>
+								<p>{details.email}</p>
+								<p>{details.address}</p>
 							</div>
 						</div>
 						<div className="wallet">
@@ -84,14 +94,20 @@ const CustomerDetails = () => {
 									<img src={Icon} />
 								</div>
 								<span>Total in Wallets:</span>
-								<strong>₦30,000</strong>
+								<strong>
+									{shopInfo?.currency}
+									{formatCurrency(details.balance)}
+								</strong>
 							</div>
 							<div className="flx">
 								<div className="img">
 									<img src={Icon} />
 								</div>
 								<span>Credit Limit:</span>
-								<strong>₦30,000</strong>
+								<strong>
+									{shopInfo?.currency}
+									{formatCurrency(details.creditLimit)}
+								</strong>
 							</div>
 						</div>
 					</SalesInfo>
@@ -131,7 +147,7 @@ const CustomerDetails = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{Array.from({ length: 10 }).map((_, i) => (
+							{Array.from({ length: 0 }).map((_, i) => (
 								<EachTransactionReport key={i} item={{}} />
 							))}
 						</tbody>
@@ -146,6 +162,8 @@ const CustomerDetails = () => {
 				onSelect={(l) => console.log(l)}
 			/>
 		</div>
+	) : (
+		<></>
 	);
 };
 

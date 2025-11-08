@@ -23,10 +23,16 @@ const connectShop = async (code: string) => {
 	return data?.data;
 };
 
+const getProfile = async () => {
+	const { data } = await apiRequest("baseUrl").get(`/global/user/profile`);
+	return data;
+};
+
 const authService = {
 	login,
 	logout,
 	connectShop,
+	getProfile,
 };
 
 export default authService;

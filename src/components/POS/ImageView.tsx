@@ -5,9 +5,15 @@ import EachProduct from "../List/EachProduct";
 import Cart from "./Cart";
 import { useAppSelector } from "../../utils/hooks";
 import { useParams } from "react-router-dom";
+import { useDebounce } from "../../utils/search";
+import { useState } from "react";
 
 const ImageView = () => {
 	const params = useParams();
+
+	const [search, setSearch] = useState("");
+
+	const debouncedSearch = useDebounce(search);
 
 	const { products } = useAppSelector((state) => state.app);
 
@@ -20,11 +26,32 @@ const ImageView = () => {
 
 	const productArr = () => {
 		if (cartInfo?.isAdvanced) {
-			return products;
+			if (debouncedSearch) {
+				return products.filter(
+					(item: any) =>
+						item.name
+							.toLowerCase()
+							.includes(debouncedSearch.toLowerCase()) ||
+						item?.barcode?.includes(debouncedSearch)
+				);
+			} else {
+				return products;
+			}
 		} else {
-			return products?.filter(
+			let arr = products?.filter(
 				(a: any) => (!a.isService && a.totalStock !== 0) || a.isService
 			);
+			if (debouncedSearch) {
+				return arr.filter(
+					(item: any) =>
+						item.name
+							.toLowerCase()
+							.includes(debouncedSearch.toLowerCase()) ||
+						item?.barcode?.includes(debouncedSearch)
+				);
+			} else {
+				return arr;
+			}
 		}
 	};
 
@@ -33,7 +60,12 @@ const ImageView = () => {
 			<div className={`col-${productsInCart.length > 0 ? "8" : "12"}`}>
 				<SearchBtn>
 					<div className="input">
-						<input type="text" placeholder="Search Name" />
+						<input
+							type="text"
+							placeholder="Search Name"
+							onChange={(e) => setSearch(e.target.value)}
+							value={search}
+						/>
 						<IoIosSearch size={18} color="#333" />
 					</div>
 					<button>

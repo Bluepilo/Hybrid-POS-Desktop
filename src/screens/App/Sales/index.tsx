@@ -20,22 +20,24 @@ const Sales = () => {
 	const [viewType, setViewType] = useState("details");
 	const [vlist, setvList] = useState<any>({});
 	const [dlist, setdList] = useState<any>({});
+	const [limit, setLimit] = useState(100);
+	const [page, setPage] = useState(1);
 
 	useEffect(() => {
 		listSales();
 		listVSales();
-	}, []);
+	}, [limit, page]);
 
 	const listSales = async () => {
 		try {
-			let res = await getSalesProducts({});
+			let res = await getSalesProducts({ limit, page });
 			setdList(res);
 		} catch (err) {}
 	};
 
 	const listVSales = async () => {
 		try {
-			let res = await fetchAllSales({});
+			let res = await fetchAllSales({ limit, page });
 			setvList(res);
 			syncAllSales(res);
 		} catch (err) {}
@@ -90,11 +92,15 @@ const Sales = () => {
 				<SalesSummaryView list={vlist} />
 			)}
 			<Paginate
-				changeLimit={(l) => console.log(l)}
-				limit={20}
-				count={50}
-				pageNumber={1}
-				onSelect={(l) => console.log(l)}
+				changeLimit={(l) => setLimit(l)}
+				limit={limit}
+				count={
+					viewType === "details"
+						? dlist?.total || 50
+						: vlist?.total || 50
+				}
+				pageNumber={page}
+				onSelect={(l) => setPage(l)}
 			/>
 		</div>
 	);
