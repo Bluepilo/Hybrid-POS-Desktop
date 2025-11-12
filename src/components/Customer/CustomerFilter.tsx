@@ -27,7 +27,6 @@ const CustomerFilter = ({
 						inputType="select"
 						value={customerType}
 						setValue={setCustomerType}
-						placeholder="Customer Type"
 						noMargin
 						options={[
 							{ label: "Walk-In", value: "customer" },

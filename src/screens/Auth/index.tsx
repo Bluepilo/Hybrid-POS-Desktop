@@ -10,6 +10,8 @@ import { Spinner } from "react-bootstrap";
 import { generateId } from "../../utils/data";
 import { hasInternet } from "../../utils/internet";
 import { createCart } from "../../redux/cart/cartSlice";
+import HintPage from "../../components/HintPage";
+import ModalComponent from "../../components/ModalComponent";
 
 const Auth = () => {
 	const dispatch = useAppDispatch();
@@ -23,6 +25,7 @@ const Auth = () => {
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [connected, setConnected] = useState(true);
+	const [openHint, setOpenHint] = useState(false);
 
 	useEffect(() => {
 		nextNav();
@@ -33,7 +36,7 @@ const Auth = () => {
 	}, []);
 
 	const loginHandler = async () => {
-		if (connected) {
+		if (await checkIfInternet()) {
 			dispatch(login({ email, password }));
 		} else {
 			dispatch(loginOffline({ email, password }));
@@ -43,8 +46,10 @@ const Auth = () => {
 	const checkIfInternet = async () => {
 		if (await hasInternet()) {
 			setConnected(true);
+			return true;
 		} else {
 			setConnected(false);
+			return false;
 		}
 	};
 
@@ -70,7 +75,7 @@ const Auth = () => {
 					<img src={Logo} alt="Logo" />
 				</div>
 				<div className="hint">
-					<button>
+					<button onClick={() => setOpenHint(true)}>
 						<FaQuestionCircle />
 						<span>Hint</span>
 					</button>
@@ -137,6 +142,9 @@ const Auth = () => {
 					</p>
 				</div>
 			</div>
+			<ModalComponent open={openHint} close={() => setOpenHint(false)}>
+				<HintPage />
+			</ModalComponent>
 		</BgStyles>
 	) : (
 		<></>

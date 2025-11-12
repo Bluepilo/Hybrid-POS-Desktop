@@ -10,6 +10,7 @@ export const BgStyles = styled.div`
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	position: relative;
 
 	.log-box {
 		background: rgba(223, 223, 223, 0.6);

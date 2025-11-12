@@ -151,14 +151,15 @@ export const upsertProducts = async (products: any[]) => {
 				for (const p of products) {
 					// This will insert new or replace existing based on id
 					await db.execute(
-						`INSERT INTO products (productId, name, price, image, isService, totalStock, barcode)
-							VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+						`INSERT INTO products (productId, name, price, image, isService, totalStock, barcode, costPrice)
+							VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
 							ON CONFLICT(productId) DO UPDATE SET
 								name = excluded.name,
 								price = excluded.price,
 								image = excluded.image,
 								totalStock = excluded.totalStock,
-								barcode = excluded.barcode`,
+								barcode = excluded.barcode,
+								costPrice = excluded.costPrice`,
 						[
 							p.id,
 							p.summary,
@@ -167,6 +168,7 @@ export const upsertProducts = async (products: any[]) => {
 							p.isService ? 1 : 0,
 							Number(p.totalStock),
 							p.barcode,
+							p.costPrice,
 						]
 					);
 				}

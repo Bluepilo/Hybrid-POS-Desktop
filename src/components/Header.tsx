@@ -148,7 +148,9 @@ const Header = () => {
 							<span className="status" />
 							<b>Staff:</b>
 							<span>
-								{user?.firstName} {user?.lastName}
+								{user?.name
+									? user.name
+									: `${user?.firstName} ${user?.lastName}`}
 							</span>
 						</div>
 						<div className="time">

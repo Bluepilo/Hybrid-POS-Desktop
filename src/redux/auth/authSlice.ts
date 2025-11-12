@@ -50,12 +50,14 @@ export const loginOffline = createAsyncThunk(
 	"auth/loginOffline",
 	async (data: any, thunkAPI) => {
 		try {
+			console.log(data.email, "data");
 			const db = getDB();
 
 			const result: any[] = await db.select(
 				"SELECT * FROM users WHERE loginId = ? LIMIT 1",
 				[data.email]
 			);
+
 			if (result.length === 0) {
 				thunkAPI.rejectWithValue("Invalid User Login");
 				displayError("Invalid User Login", true);
@@ -63,10 +65,7 @@ export const loginOffline = createAsyncThunk(
 			}
 
 			const user = result[0];
-			const match = await bcrypt.compare(
-				data.password,
-				user.passwordHash
-			);
+			const match = await bcrypt.compare(data.password, user.password);
 
 			if (!match) {
 				thunkAPI.rejectWithValue("Invalid Password");
@@ -75,6 +74,7 @@ export const loginOffline = createAsyncThunk(
 
 			return user;
 		} catch (error) {
+			console.log(error);
 			const message = displayError(error, true);
 			return thunkAPI.rejectWithValue(message);
 		}

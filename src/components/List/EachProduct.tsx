@@ -7,6 +7,10 @@ import { addProductToCart } from "../../redux/cart/cartSlice";
 const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 	const dispatch = useAppDispatch();
 
+	const { cartItems } = useAppSelector((state) => state.cart);
+
+	const cartInfo = cartItems.find((cart) => cart.cartId === cartId);
+
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const cartHandler = () => {
@@ -17,7 +21,9 @@ const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 					id: product.productId,
 					name: product.name,
 					quantity: 1,
-					price: product.price,
+					price: cartInfo?.isSubdealer
+						? product.costPrice
+						: product.price,
 				},
 			})
 		);
@@ -37,7 +43,12 @@ const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 				</div>
 				<h5>{product.name}</h5>
 				<h6>
-					{shopInfo?.currency} {numberWithCommas(product.price)}
+					{shopInfo?.currency}{" "}
+					{numberWithCommas(
+						cartInfo?.isSubdealer
+							? product.costPrice
+							: product.price
+					)}
 				</h6>
 			</div>
 		</ProductStyle>

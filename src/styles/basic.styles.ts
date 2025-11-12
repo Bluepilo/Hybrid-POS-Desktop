@@ -625,3 +625,23 @@ export const CoverScroll = styled.div`
 	overflow-x: hidden;
 	padding-bottom: 50px;
 `;
+
+export const HintBoard = styled.div`
+	background: #fff;
+
+	.list {
+		div {
+			margin-bottom: 15px;
+			background: #000;
+			padding: 8px 0;
+			padding-left: 30px;
+			color: #fff;
+			font-size: 0.9rem;
+			border-radius: 20px;
+
+			p {
+				color: #ffb900;
+			}
+		}
+	}
+`;
