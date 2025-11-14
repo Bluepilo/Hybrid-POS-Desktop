@@ -2,8 +2,36 @@ import { BsCloudUpload } from "react-icons/bs";
 import Button from "../../../components/Button";
 import { CardBox, InfoBox, SyncBox } from "../../../styles/basic.styles";
 import { IoMdRefresh } from "react-icons/io";
+import { useAppSelector } from "../../../utils/hooks";
+import { syncDBShop } from "../../../utils/db/dbUpdate";
+import { useState } from "react";
+import { displayError } from "../../../utils/display";
+import LoginModal from "../../../components/LoginModal";
 
 const Settings = () => {
+	const [load, setLoad] = useState(false);
+	const [openSession, setOpenSession] = useState(false);
+
+	const { shopInfo } = useAppSelector((state) => state.auth);
+
+	const syncData = async () => {
+		if (shopInfo?.id) {
+			try {
+				setLoad(true);
+				await syncDBShop(shopInfo.id);
+				setLoad(false);
+			} catch (err) {
+				setLoad(false);
+				let message = displayError(err, false);
+				if (message?.includes("Session expired")) {
+					setOpenSession(true);
+				} else {
+					displayError(err, true);
+				}
+			}
+		}
+	};
+
 	return (
 		<div>
 			<h3
@@ -55,7 +83,7 @@ const Settings = () => {
 							</p>
 							<h5 style={{ color: "#666" }}>Ikeja Branch</h5>
 						</div>
-						<div className="col-md-6">
+						<div className="col-md-6 mt-3">
 							<Button
 								name="Disconnect from Online Store"
 								onClick={() => console.log("")}
@@ -116,13 +144,14 @@ const Settings = () => {
 							<div className="prog">
 								<div className="line" />
 							</div>
-							<button>
+							<button disabled={load} onClick={syncData}>
 								<IoMdRefresh size={20} color="#FFF" />
 							</button>
 						</SyncBox>
 					</div>
 				</div>
 			</div>
+			<LoginModal open={openSession} toggleLogin={setOpenSession} />
 		</div>
 	);
 };

@@ -39,6 +39,23 @@ export const PosTitleSearch = styled.div`
 	}
 `;
 
+export const ScanBtn = styled.button`
+	border: 1px solid #fff;
+	background: rgba(38, 50, 56, 1);
+	color: #fff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px 0px;
+	border-radius: 10px;
+	width: 100%;
+	font-size: 0.85rem;
+
+	span {
+		margin-left: 10px;
+	}
+`;
+
 export const SearchBtn = styled.div`
 	margin-top: 20px;
 	width: 100%;
@@ -88,19 +105,29 @@ export const ProductStyle = styled.div`
 	padding: 10px;
 	margin-bottom: 20px;
 	border-radius: 20px;
+	/* height: 100%; */
+
+	cursor: pointer;
 
 	.img {
 		position: relative;
 
+		img {
+			width: 100%;
+			height: 120px;
+			border-radius: 4px;
+		}
+
 		span {
 			position: absolute;
-			top: 10px;
-			left: 10px;
+			top: 5px;
+			left: 5px;
 			color: rgba(76, 175, 80, 1);
 			background: #fff;
 			padding: 4px 8px;
 			border-radius: 5px;
 			font-size: 0.8rem;
+			border: 1px solid rgba(0, 0, 0, 0.2);
 		}
 	}
 
@@ -125,6 +152,7 @@ export const ProductStyle = styled.div`
 		h6 {
 			color: #000;
 			margin-top: 10px;
+			font-size: 1rem;
 		}
 		h5 {
 			font-size: 1rem;
@@ -479,5 +507,98 @@ export const CartTotal = styled.div`
 				background: rgba(190, 190, 190, 1);
 			}
 		}
+	}
+`;
+
+export const SelectedCustomerStyle = styled.div`
+	h5,
+	p,
+	h6 {
+		padding: 0;
+		margin: 0;
+	}
+
+	.box1 {
+		background: #000;
+		border-radius: 20px;
+		display: flex;
+		justify-content: space-between;
+
+		.first,
+		.second {
+			padding: 12px 20px;
+			width: 50%;
+		}
+
+		.first {
+			p {
+				color: #fff;
+				font-size: 1rem;
+			}
+			p:last-child {
+				color: rgba(255, 199, 39, 1);
+			}
+		}
+
+		.second {
+			background: rgba(255, 199, 39, 1);
+			border-radius: 20px;
+			padding: 20px;
+			display: flex;
+			align-items: center;
+
+			span {
+				font-size: 0.85rem;
+				margin-right: 20px;
+			}
+			h5 {
+				font-weight: bold;
+			}
+		}
+	}
+
+	.box2 {
+		background: rgba(255, 199, 39, 1);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		color: #000;
+		padding: 12px 20px;
+		border-radius: 20px;
+
+		p {
+			font-size: 0.7rem;
+		}
+	}
+`;
+
+export const ViewTotal = styled.div`
+	border: 1.5px solid #000;
+	padding: 20px;
+	border-radius: 20px;
+	display: flex;
+	align-items: center;
+
+	h5,
+	h6 {
+		padding: 0;
+		margin: 0;
+		color: #000;
+	}
+
+	h6 {
+		width: 150px;
+		font-size: 0.9rem;
+	}
+
+	h5 {
+		font-weight: bolder;
+	}
+
+	input {
+		border: 0;
+		outline: 0;
+		color: #000;
+		font-size: 1.3rem;
 	}
 `;

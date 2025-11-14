@@ -1,28 +1,52 @@
+import { useEffect, useState } from "react";
 import CustomerFilter from "../../../components/Customer/CustomerFilter";
 import EachCustomer from "../../../components/List/EachCustomer";
 import Paginate from "../../../components/Paginate";
 import { TableArea } from "../../../styles/basic.styles";
 import { PosTitleSearch } from "../../../styles/pos.styles";
 import { TableDiv } from "../../../styles/table.styles";
+import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
+import { loadCustomers } from "../../../redux/app/appSlice";
 
 const Customers = () => {
+	const dispatch = useAppDispatch();
+
+	const { customers, subdealers } = useAppSelector((state) => state.app);
+
+	const [customerType, setCustomerType] = useState("customer");
+
+	useEffect(() => {
+		dispatch(loadCustomers());
+	}, []);
+
+	const arrayToLoad = () => {
+		if (customerType === "customer") {
+			return customers;
+		} else {
+			return subdealers;
+		}
+	};
+
 	return (
 		<div className="d-flex flex-column h-100">
 			<PosTitleSearch className="mt-3">
 				<div className="title">
 					<h1>Customers</h1>
-					<span>3</span>
+					<span>{arrayToLoad().length}</span>
 				</div>
 			</PosTitleSearch>
-			<CustomerFilter />
+			<CustomerFilter
+				customerType={customerType}
+				setCustomerType={setCustomerType}
+			/>
 			<TableArea>
 				<div className="table-responsive h-100">
 					<TableDiv className="table mb-0">
 						<thead>
 							<tr>
-								<th>Last Transaction</th>
 								<th>Customer Name</th>
 								<th>Phone Number</th>
+								<th>Email</th>
 								<th>Wallet Balance</th>
 								<th>Credit Limit</th>
 								<th>Customer Status</th>
@@ -31,8 +55,11 @@ const Customers = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{Array.from({ length: 10 }).map((_, i) => (
-								<EachCustomer key={i} item={{}} />
+							{arrayToLoad().map((customer: any) => (
+								<EachCustomer
+									key={customer.id}
+									item={customer}
+								/>
 							))}
 						</tbody>
 					</TableDiv>

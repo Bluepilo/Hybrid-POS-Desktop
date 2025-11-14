@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LoadingScreen } from "../../styles/landing.styles";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/images/bluepilo.svg";
 import { generateId } from "../../utils/data";
-import { useAppDispatch } from "../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { createCart } from "../../redux/cart/cartSlice";
+import { displayError } from "../../utils/display";
+import { syncDBShop } from "../../utils/db/dbUpdate";
 
 const Loading = () => {
 	const dispatch = useAppDispatch();
 
 	const navigate = useNavigate();
 
+	const { shopInfo } = useAppSelector((state) => state.auth);
+
 	const [progress, setProgress] = useState(0);
+
+	let id = useRef<any>(null);
 
 	const goToDashboard = () => {
 		const id = generateId();
@@ -20,20 +26,39 @@ const Loading = () => {
 	};
 
 	useEffect(() => {
-		let ran = false;
-		const id = setInterval(() => {
+		uploadProducts();
+		return () => clearInterval(id.current);
+	}, []);
+
+	useEffect(() => {
+		if (progress >= 100) {
+			goToDashboard();
+		}
+	}, [progress]);
+
+	const uploadProducts = async () => {
+		try {
+			await syncDBShop(shopInfo?.id);
+			runInterval();
+		} catch (err) {
+			displayError(
+				"There was an error updating your stocks. Please Contact Admin",
+				true
+			);
+		}
+	};
+
+	const runInterval = () => {
+		id.current = setInterval(() => {
 			setProgress((p) => {
-				if (p >= 100 && !ran) {
-					ran = true;
-					clearInterval(id);
-					goToDashboard();
+				if (p >= 100) {
+					clearInterval(id.current);
 					return 100;
 				}
 				return p + 5;
 			});
 		}, 500);
-		return () => clearInterval(id);
-	}, []);
+	};
 
 	return (
 		<LoadingScreen val={progress}>

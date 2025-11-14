@@ -1,54 +1,106 @@
-import EachSales from "../../../components/List/EachSales";
+import { useEffect, useState } from "react";
 import Paginate from "../../../components/Paginate";
 import SalesFilter from "../../../components/Sales/SalesFilter";
 import Stats from "../../../components/Sales/Stats";
-import { TableArea } from "../../../styles/basic.styles";
 import { PosTitleSearch } from "../../../styles/pos.styles";
-import { TableDiv } from "../../../styles/table.styles";
+import SalesSummaryView from "../../../components/Sales/SalesSummaryView";
+import { fetchAllSales, getSalesProducts } from "../../../utils/db/dbFetch";
+import SalesDetailsView from "../../../components/Sales/SalesDetailsView";
+import appService from "../../../redux/app/appService";
+import { updateSaleSyncStatus } from "../../../utils/db/dbUpdate";
+import { displayError } from "../../../utils/display";
+import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
+import { reduceSync } from "../../../redux/app/appSlice";
 
 const Sales = () => {
+	const dispatch = useAppDispatch();
+
+	const { user } = useAppSelector((state) => state.auth);
+
+	const [viewType, setViewType] = useState("details");
+	const [vlist, setvList] = useState<any>({});
+	const [dlist, setdList] = useState<any>({});
+	const [limit, setLimit] = useState(100);
+	const [page, setPage] = useState(1);
+
+	useEffect(() => {
+		listSales();
+		listVSales();
+	}, [limit, page]);
+
+	const listSales = async () => {
+		try {
+			let res = await getSalesProducts({ limit, page });
+			setdList(res);
+		} catch (err) {}
+	};
+
+	const listVSales = async () => {
+		try {
+			let res = await fetchAllSales({ limit, page });
+			setvList(res);
+			syncAllSales(res);
+		} catch (err) {}
+	};
+
+	const syncAllSales = async (salesVals: any) => {
+		if (salesVals?.data?.length > 0) {
+			const promises = salesVals.data.map(async (sale: any) => {
+				if (sale.syncStatus !== "success" && user.id == sale.userId) {
+					try {
+						await appService.makeSale({
+							...sale,
+							customerId: sale.actorId,
+							status: "complete",
+							isDeposit: false,
+						});
+						await updateSaleSyncStatus(sale.id, "success");
+						dispatch(reduceSync());
+					} catch (err) {
+						let msg = displayError(err, true);
+						await updateSaleSyncStatus(sale.id, "failed", msg);
+					}
+				}
+			});
+
+			await Promise.allSettled(promises);
+		}
+	};
+
 	return (
 		<div className="d-flex flex-column h-100">
 			<PosTitleSearch className="mt-3">
 				<div className="title">
 					<h1>Sales Record</h1>
-					<span>3</span>
-					<select>
-						<option value={"walk-in"}>Detail View</option>
+					<span>
+						{viewType === "details" ? dlist?.total : vlist?.total}
+					</span>
+					<select
+						value={viewType}
+						onChange={(e) => setViewType(e.target.value)}
+					>
+						<option value={"details"}>Detail View</option>
+						<option value={"summary"}>Summary View</option>
 					</select>
 				</div>
 			</PosTitleSearch>
 			<Stats />
 			<SalesFilter />
-			<TableArea>
-				<div className="table-responsive h-100">
-					<TableDiv className="table mb-0">
-						<thead>
-							<tr>
-								<th>Date</th>
-								<th>Product</th>
-								<th>Transaction ID</th>
-								<th>Staff</th>
-								<th>Sales Amount</th>
-								<th>Source</th>
-								<th>Sync Status</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							{Array.from({ length: 10 }).map((_, i) => (
-								<EachSales key={i} item={{}} />
-							))}
-						</tbody>
-					</TableDiv>
-				</div>
-			</TableArea>
+			{viewType === "details" ? (
+				<SalesDetailsView list={dlist} />
+			) : (
+				<SalesSummaryView list={vlist} />
+			)}
 			<Paginate
-				changeLimit={(l) => console.log(l)}
-				limit={20}
-				count={50}
-				pageNumber={1}
-				onSelect={(l) => console.log(l)}
+				changeLimit={(l) => setLimit(l)}
+				limit={limit}
+				count={
+					viewType === "details"
+						? dlist?.total || 50
+						: vlist?.total || 50
+				}
+				pageNumber={page}
+				onSelect={(l) => setPage(l)}
 			/>
 		</div>
 	);

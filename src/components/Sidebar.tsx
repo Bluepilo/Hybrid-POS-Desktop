@@ -6,10 +6,11 @@ import { GrList } from "react-icons/gr";
 import { FaRegUser } from "react-icons/fa";
 import { BsBoxSeam } from "react-icons/bs";
 import { VscSettingsGear } from "react-icons/vsc";
-import { useAppSelector } from "../utils/hooks";
+import { useAppDispatch } from "../utils/hooks";
+import { logout } from "../redux/auth/authSlice";
 
 const Sidebar = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
-	const {} = useAppSelector((state) => state.cart);
+	const dispatch = useAppDispatch();
 
 	const closeOnClick = () => {
 		setTimeout(() => {
@@ -48,6 +49,9 @@ const Sidebar = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
 						<VscSettingsGear />
 						<span>Settings</span>
 					</NavLink>
+				</div>
+				<div className="nav-btm" onClick={() => dispatch(logout())}>
+					<button>Log Out</button>
 				</div>
 			</SideStyles>
 		</>

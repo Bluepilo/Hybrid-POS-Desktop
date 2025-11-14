@@ -102,6 +102,22 @@ export const SideStyles = styled.div<{ $open: boolean }>`
 			}
 		}
 	}
+	.nav-btm {
+		position: absolute;
+		bottom: 20px;
+		right: 20px;
+		left: 20px;
+
+		button {
+			width: 100%;
+			background: #000d33;
+			border-radius: 10px;
+			padding: 10px 0;
+			color: #fff;
+			outline: 0;
+			border: 0;
+		}
+	}
 `;
 
 export const TableArea = styled.div`
@@ -109,6 +125,11 @@ export const TableArea = styled.div`
 	overflow-y: auto;
 	/* padding-bottom: 80px; */
 	margin-top: 20px;
+`;
+
+export const ZIndex = styled.div`
+	position: relative;
+	z-index: 9991;
 `;
 
 export const StatsStyles = styled.div`
@@ -442,6 +463,10 @@ export const SyncTable = styled.div`
 		&.failed {
 			background: red;
 		}
+
+		&.pending {
+			background: orange;
+		}
 	}
 	.bdy {
 		margin-bottom: 10px;
@@ -578,4 +603,25 @@ export const SyncBox = styled.div`
 			background: rgba(80, 91, 218, 1);
 		}
 	}
+`;
+
+export const UploadContainer = styled.label`
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	background: rgba(255, 199, 39, 1);
+	color: rgba(38, 50, 56, 1);
+	font-size: 0.9rem;
+	font-weight: 500;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: background 0.3s ease;
+`;
+
+export const CoverScroll = styled.div`
+	height: 100dvh;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-bottom: 50px;
 `;
