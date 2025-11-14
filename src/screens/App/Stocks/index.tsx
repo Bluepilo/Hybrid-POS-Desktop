@@ -20,6 +20,8 @@ const Stocks = () => {
 		dispatch(loadProducts());
 	}, []);
 
+	console.log(products, "pp");
+
 	return (
 		<div className="d-flex flex-column h-100">
 			<PosTitleSearch className="mt-3">
@@ -36,7 +38,13 @@ const Stocks = () => {
 							</div>
 							<div className="text">
 								<h6>Products in Stock</h6>
-								<h6>{products?.length}</h6>
+								<h6>
+									{products?.reduce(
+										(a: any, b: any) =>
+											a + Number(b.totalStock),
+										0
+									)}
+								</h6>
 							</div>
 						</div>
 					</StatsStyles>

@@ -10,6 +10,11 @@ import { createCart, updateCartField } from "../../../redux/cart/cartSlice";
 import { loadProducts } from "../../../redux/app/appSlice";
 import Button from "../../../components/Button";
 import { generateId } from "../../../utils/data";
+import { FiRefreshCcw } from "react-icons/fi";
+import { ButtonNormal } from "../../../styles/form.styles";
+import { syncDBShop } from "../../../utils/db/dbUpdate";
+import { Spinner } from "react-bootstrap";
+import { displayError } from "../../../utils/display";
 
 const POS = () => {
 	const params = useParams();
@@ -19,8 +24,10 @@ const POS = () => {
 	const dispatch = useAppDispatch();
 
 	const [imageDisplay, setImageDisplay] = useState(true);
+	const [loadSync, setLoadSync] = useState(false);
 
 	const { cartItems } = useAppSelector((state) => state.cart);
+	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
 
@@ -28,14 +35,31 @@ const POS = () => {
 		dispatch(loadProducts());
 	}, []);
 
+	const syncHandler = async () => {
+		try {
+			setLoadSync(true);
+			await syncDBShop(shopInfo.id);
+			setLoadSync(false);
+		} catch (err) {
+			setLoadSync(false);
+		}
+	};
+
 	const selectCustomer = (value: string) => {
-		dispatch(
-			updateCartField({
-				cartId: params?.tabId || "",
-				value: value === "walk-in" ? false : true,
-				field: "isSubdealer",
-			})
-		);
+		if (cartInfo?.products?.length === 0) {
+			dispatch(
+				updateCartField({
+					cartId: params?.tabId || "",
+					value: value === "walk-in" ? false : true,
+					field: "isSubdealer",
+				})
+			);
+		} else {
+			displayError(
+				`Please clear cart before switching customer type`,
+				true
+			);
+		}
 	};
 
 	const selectAdvance = (value: string) => {
@@ -61,33 +85,53 @@ const POS = () => {
 			<div className="d-flex flex-column h-100">
 				<div className="row mt-3">
 					<div className="col-8">
-						<PosTitleSearch>
-							<div className="title">
-								<h1>Sell to a</h1>
-								<select
-									value={
-										cartInfo?.isSubdealer
-											? "subdealer"
-											: "walk-in"
-									}
-									onChange={(e) =>
-										selectCustomer(e.target.value)
-									}
-								>
-									<option value={"walk-in"}>Walk-In</option>
-									<option value={"subdealer"}>
-										Subdealer
-									</option>
-								</select>
-								<h1>Customer</h1>
-								{Array.isArray(cartInfo?.products) &&
-									cartInfo.products.length > 0 && (
-										<span>
-											{cartInfo?.products?.length}
-										</span>
-									)}
-							</div>
-						</PosTitleSearch>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "center",
+							}}
+						>
+							<PosTitleSearch>
+								<div className="title">
+									<h1>Sell to a</h1>
+									<select
+										value={
+											cartInfo?.isSubdealer
+												? "subdealer"
+												: "walk-in"
+										}
+										onChange={(e) =>
+											selectCustomer(e.target.value)
+										}
+									>
+										<option value={"walk-in"}>
+											Walk-In
+										</option>
+										<option value={"subdealer"}>
+											Subdealer
+										</option>
+									</select>
+									<h1>Customer</h1>
+									{Array.isArray(cartInfo?.products) &&
+										cartInfo.products.length > 0 && (
+											<span>
+												{cartInfo?.products?.length}
+											</span>
+										)}
+								</div>
+							</PosTitleSearch>
+							<ButtonNormal
+								onClick={syncHandler}
+								disabled={loadSync}
+							>
+								{loadSync ? (
+									<Spinner size="sm" />
+								) : (
+									<FiRefreshCcw />
+								)}
+							</ButtonNormal>
+						</div>
 					</div>
 					<div className="col-4">
 						<DisplayType>

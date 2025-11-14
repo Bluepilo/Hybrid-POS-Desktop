@@ -70,7 +70,7 @@ const InputField = ({
 					value={value}
 					onChange={(e) => setValue(e.target.value)}
 				>
-					<option value={""}>{placeholder || ""}</option>
+					{placeholder && <option value={""}>{placeholder}</option>}
 					{options &&
 						options.map((option) => (
 							<option value={option.value} key={option.value}>

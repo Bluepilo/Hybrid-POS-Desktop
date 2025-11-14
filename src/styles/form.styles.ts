@@ -70,6 +70,19 @@ export const ButtonClick = styled.button`
 	}
 `;
 
+export const ButtonNormal = styled.button`
+	border: 1.5px solid #fff;
+	outline: 0;
+	background: #000d33;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px 20px;
+	border-radius: 10px;
+	box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+`;
+
 export const SessionDiv = styled.div`
 	margin-top: 20px;
 	text-align: center;

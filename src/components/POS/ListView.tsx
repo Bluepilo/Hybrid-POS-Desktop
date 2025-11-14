@@ -81,7 +81,7 @@ const ListView = () => {
 										return {
 											...p,
 											value: p.productId,
-											label: p.name,
+											label: `${p.name} (${p.totalStock})`,
 										};
 									})}
 									noMargin={true}
