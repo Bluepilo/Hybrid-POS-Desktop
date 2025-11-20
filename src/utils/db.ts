@@ -6,20 +6,9 @@ export async function initDB() {
 	try {
 		if (db) return db;
 
+		console.log("Are you running???");
+
 		db = await Database.load("sqlite:app.db");
-
-		// Disable foreign key checks while dropping tables
-
-		// await db.execute(`PRAGMA foreign_keys = OFF`);
-
-		// await db.execute(`DROP TABLE IF EXISTS sales_products`);
-		// await db.execute(`DROP TABLE IF EXISTS sales`);
-		// await db.execute(`DROP TABLE IF EXISTS users`);
-		// await db.execute(`DROP TABLE IF EXISTS products`);
-		// await db.execute(`DROP TABLE IF EXISTS customers`);
-		// await db.execute(`DROP TABLE IF EXISTS shops`);
-
-		// await db.execute(`PRAGMA foreign_keys = ON`);
 
 		await db.execute(`
 			CREATE TABLE IF NOT EXISTS users (
@@ -120,6 +109,32 @@ export async function initDB() {
 	} catch (err) {
 		console.error("❌ DB initialization failed.", err);
 		throw err;
+	}
+}
+
+export async function clearDB() {
+	try {
+		if (!db) {
+			console.log("No DB Instance");
+			return;
+		}
+
+		// Disable foreign key checks while dropping tables
+
+		await db.execute(`PRAGMA foreign_keys = OFF`);
+
+		await db.execute(`DROP TABLE IF EXISTS sales_products`);
+		await db.execute(`DROP TABLE IF EXISTS sales`);
+		await db.execute(`DROP TABLE IF EXISTS users`);
+		await db.execute(`DROP TABLE IF EXISTS products`);
+		await db.execute(`DROP TABLE IF EXISTS customers`);
+		await db.execute(`DROP TABLE IF EXISTS shops`);
+
+		await db.execute(`PRAGMA foreign_keys = ON`);
+
+		initDB();
+	} catch (err) {
+		console.log(err, "Error Clearing DB");
 	}
 }
 

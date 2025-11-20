@@ -31,6 +31,7 @@ const Sales = () => {
 	const listSales = async () => {
 		try {
 			let res = await getSalesProducts({ limit, page });
+			console.log(res, "PRODUCRS");
 			setdList(res);
 		} catch (err) {}
 	};
@@ -39,11 +40,13 @@ const Sales = () => {
 		try {
 			let res = await fetchAllSales({ limit, page });
 			setvList(res);
-			syncAllSales(res);
+			console.log(res, "RES");
+			// syncAllSales(res);
 		} catch (err) {}
 	};
 
 	const syncAllSales = async (salesVals: any) => {
+		console.log(salesVals, "salesVals");
 		if (salesVals?.data?.length > 0) {
 			const promises = salesVals.data.map(async (sale: any) => {
 				if (sale.syncStatus !== "success" && user.id == sale.userId) {

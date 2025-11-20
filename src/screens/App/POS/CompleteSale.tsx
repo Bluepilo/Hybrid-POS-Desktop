@@ -133,6 +133,12 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 			displayError("Not Enough Balance", true);
 			return;
 		}
+
+		if (cartInfo?.products.length === 0) {
+			displayError("Products should not be empty", true);
+			return;
+		}
+
 		try {
 			let payload = {
 				actorId: customerInfo,
@@ -156,6 +162,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 				syncStatus: "pending",
 				balance: balanceAfter(),
 			};
+			console.log(payload, "payload");
 			setLoad(true);
 			await insertSaleWithProducts(payload);
 			dispatch(removeFromCart(cartId));

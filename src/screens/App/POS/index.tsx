@@ -40,6 +40,7 @@ const POS = () => {
 			setLoadSync(true);
 			await syncDBShop(shopInfo.id);
 			setLoadSync(false);
+			dispatch(loadProducts());
 		} catch (err) {
 			setLoadSync(false);
 		}
@@ -80,7 +81,7 @@ const POS = () => {
 
 	return cartItems.length > 0 ? (
 		cartInfo?.proceed ? (
-			<CompleteSale cartId={params?.tabId} />
+			<CompleteSale cartId={cartInfo?.cartId} />
 		) : (
 			<div className="d-flex flex-column h-100">
 				<div className="row mt-3">

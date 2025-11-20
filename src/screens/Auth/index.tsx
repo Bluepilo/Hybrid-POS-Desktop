@@ -12,6 +12,7 @@ import { hasInternet } from "../../utils/internet";
 import { createCart } from "../../redux/cart/cartSlice";
 import HintPage from "../../components/HintPage";
 import ModalComponent from "../../components/ModalComponent";
+import { initDB } from "../../utils/db";
 
 const Auth = () => {
 	const dispatch = useAppDispatch();
@@ -28,6 +29,7 @@ const Auth = () => {
 	const [openHint, setOpenHint] = useState(false);
 
 	useEffect(() => {
+		initDB();
 		nextNav();
 	}, [user]);
 

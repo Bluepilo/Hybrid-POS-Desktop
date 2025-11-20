@@ -10,6 +10,9 @@ export const fetchAllSales = async ({
 	const db = getDB();
 	const offset = (page - 1) * limit;
 
+	const totalS = await db.select("SELECT COUNT(*) AS total FROM sales;");
+	console.log("➡ TOTAL SALES:", totalS);
+
 	let whereClauses: string[] = [];
 	let params: (string | number)[] = [];
 
@@ -27,57 +30,60 @@ export const fetchAllSales = async ({
 		? `WHERE ${whereClauses.join(" AND ")}`
 		: "";
 
-	// 1️⃣ Count total matching records
+	// Count total unique sales
 	const totalResult = await db.select<any[]>(
 		`
-		SELECT COUNT(DISTINCT s.id) AS total
-		FROM sales s
-		LEFT JOIN customers c ON s.actorId = c.customerId
-		LEFT JOIN users u ON s.userId = u.userId
-		${whereSQL}
-		`,
+        SELECT COUNT(DISTINCT s.id) AS total
+        FROM sales s
+        LEFT JOIN customers c ON s.actorId = c.customerId
+        LEFT JOIN users u ON s.userId = u.userId
+        ${whereSQL}
+        `,
 		params
 	);
 
 	const total = totalResult[0]?.total || 0;
 	const totalPages = Math.ceil(total / limit);
 
-	// 2️⃣ Fetch paginated data with product names
+	// Fetch paginated sales
 	const rows = await db.select<any[]>(
 		`
-		SELECT
-			s.*,
-			c.name AS actorName,
-			u.name AS userName,
-			json_group_array(
-				json_object(
-					'id', sp.productId,
-					'productId', sp.productId,
-					'name', p.name,
-					'quantity', sp.quantity,
-					'price', sp.price
-				)
-			) AS products
-		FROM sales s
-		LEFT JOIN customers c ON s.actorId = c.customerId
-		LEFT JOIN users u ON s.userId = u.userId
-		LEFT JOIN sales_products sp ON sp.saleId = s.id
-		LEFT JOIN products p ON p.productId = sp.productId
-		${whereSQL}
-		GROUP BY s.id
-		ORDER BY s.createdAt DESC
-		LIMIT ? OFFSET ?
-		`,
+        SELECT
+            s.*,
+            c.name AS actorName,
+            u.name AS userName,
+            json_group_array(
+                CASE 
+                    WHEN sp.productId IS NOT NULL THEN json_object(
+                        'id', sp.productId,
+                        'productId', sp.productId,
+                        'name', p.name,
+                        'quantity', sp.quantity,
+                        'price', sp.price
+                    )
+                END
+            ) AS products
+        FROM sales s
+        LEFT JOIN customers c ON s.actorId = c.customerId
+        LEFT JOIN users u ON s.userId = u.userId
+        LEFT JOIN sales_products sp ON sp.saleId = s.id
+        LEFT JOIN products p ON p.productId = sp.productId
+        ${whereSQL}
+        GROUP BY s.id
+        ORDER BY s.createdAt DESC
+        LIMIT ? OFFSET ?
+        `,
 		[...params, limit, offset]
 	);
 
-	// 3️⃣ Parse products from JSON
+	// Parse JSON products & remove null entries
 	const sales = rows.map((row) => ({
 		...row,
-		products: row.products ? JSON.parse(row.products) : [],
+		products: row.products
+			? JSON.parse(row.products).filter((p: any) => p !== null)
+			: [],
 	}));
 
-	// 4️⃣ Return structured pagination response
 	return {
 		data: sales,
 		currentPage: page,

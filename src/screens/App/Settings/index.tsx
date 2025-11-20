@@ -2,13 +2,19 @@ import { BsCloudUpload } from "react-icons/bs";
 import Button from "../../../components/Button";
 import { CardBox, InfoBox, SyncBox } from "../../../styles/basic.styles";
 import { IoMdRefresh } from "react-icons/io";
-import { useAppSelector } from "../../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { syncDBShop } from "../../../utils/db/dbUpdate";
 import { useState } from "react";
 import { displayError } from "../../../utils/display";
 import LoginModal from "../../../components/LoginModal";
+import { clearShop, logout } from "../../../redux/auth/authSlice";
+import { clearDB } from "../../../utils/db";
+import { confirm } from "@tauri-apps/plugin-dialog";
+import { clearCart } from "../../../redux/cart/cartSlice";
 
 const Settings = () => {
+	const dispatch = useAppDispatch();
+
 	const [load, setLoad] = useState(false);
 	const [openSession, setOpenSession] = useState(false);
 
@@ -28,6 +34,26 @@ const Settings = () => {
 				} else {
 					displayError(err, true);
 				}
+			}
+		}
+	};
+
+	const completeLogOut = async () => {
+		const confirmed = await confirm(
+			`This will also clear your database. Are you sure you want to proceed?`,
+			{
+				title: "Cancel",
+				kind: "warning",
+			}
+		);
+		if (confirmed) {
+			try {
+				await clearDB();
+				dispatch(logout());
+				dispatch(clearShop());
+				dispatch(clearCart());
+			} catch (err) {
+				displayError(err, true);
 			}
 		}
 	};
@@ -86,7 +112,7 @@ const Settings = () => {
 						<div className="col-md-6 mt-3">
 							<Button
 								name="Disconnect from Online Store"
-								onClick={() => console.log("")}
+								onClick={completeLogOut}
 								border="red"
 								bg="red"
 							/>
