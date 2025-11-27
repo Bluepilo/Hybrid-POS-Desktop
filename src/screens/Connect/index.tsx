@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import ProgressBar from "../../components/ProgressBar";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
-import { connectShop } from "../../redux/auth/authSlice";
+import { connectShop, logout } from "../../redux/auth/authSlice";
 import { Spinner } from "react-bootstrap";
 
 const Connect = () => {
@@ -43,6 +43,11 @@ const Connect = () => {
 			return () => clearInterval(id);
 		}
 	}, [connecting]);
+
+	const onCancel = () => {
+		dispatch(logout());
+		navigate("/");
+	};
 
 	return (
 		<BgStyles>
@@ -99,6 +104,9 @@ const Connect = () => {
 								)}
 								<span>Connect</span>
 							</button>
+						</div>
+						<div className="text-center oth">
+							<button onClick={onCancel}>Cancel</button>
 						</div>
 						<div className="others">
 							<p>You do not have an account?</p>

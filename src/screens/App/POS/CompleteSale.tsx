@@ -171,6 +171,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 			setLoad(false);
 		} catch (err) {
 			setLoad(false);
+			console.log(err, "ERR");
 			displayError(err, true);
 		}
 	};

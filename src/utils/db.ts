@@ -6,8 +6,6 @@ export async function initDB() {
 	try {
 		if (db) return db;
 
-		console.log("Are you running???");
-
 		db = await Database.load("sqlite:app.db");
 
 		await db.execute(`
@@ -132,7 +130,9 @@ export async function clearDB() {
 
 		await db.execute(`PRAGMA foreign_keys = ON`);
 
-		initDB();
+		db = null;
+
+		await initDB();
 	} catch (err) {
 		console.log(err, "Error Clearing DB");
 	}

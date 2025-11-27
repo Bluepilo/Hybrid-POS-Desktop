@@ -308,6 +308,14 @@ export const BoxList = styled.div`
 			margin-top: 10px;
 			display: inline-block;
 			font-weight: 700;
+
+			&.success {
+				background: rgba(0, 255, 0, 0.2);
+			}
+
+			&.failed {
+				background: red;
+			}
 		}
 	}
 `;

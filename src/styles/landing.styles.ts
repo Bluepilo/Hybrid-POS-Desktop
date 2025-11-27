@@ -167,6 +167,20 @@ export const BgStyles = styled.div`
 			}
 		}
 
+		.oth {
+			margin-top: 20px;
+
+			button {
+				border: 0;
+				outline: 0;
+				font-weight: bold;
+				font-size: 1rem;
+				background: none;
+				color: #0141ff;
+				border-bottom: 3px solid #0141ff;
+			}
+		}
+
 		h6.title {
 			color: rgba(51, 51, 51, 1);
 			text-align: center;

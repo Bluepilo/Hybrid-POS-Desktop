@@ -6,87 +6,86 @@ export const insertSaleWithProducts = async (sale: any) => {
 	if (!db) return;
 
 	try {
-		// Start the transaction
-		let sql = "BEGIN TRANSACTION;";
+		const insertSaleSQL = `
+      INSERT INTO sales (
+        shopId,
+        actualAmountPaid,
+        amountExpected,
+        amountPaid,
+        actorId,
+        isSubdealer,
+        hybridRef,
+        userId,
+        syncStatus,
+        comment,
+        discount,
+        customerName,
+        customerPhoneNo,
+        customerEmail,
+        isDeposit,
+        paymentMethodId
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    `;
 
-		// 1️⃣ Insert sale
-		sql += `
-		INSERT INTO sales (
-			shopId,
-			actualAmountPaid,
-			amountExpected,
-			amountPaid,
-			actorId,
-			isSubdealer,
-			hybridRef,
-			userId,
-			syncStatus,
-			comment,
-			discount,
-			customerName,
-			customerPhoneNo,
-			customerEmail,
-			isDeposit,
-			paymentMethodId
-		) VALUES (
-			${sale.shopId},
-			${sale.amountPaid},
-			${sale.amountExpected},
-			${sale.amountPaid},
-			${sale.actorId},
-			${sale.isSubdealer ? 1 : 0},
-			'${sale.hybridRef.replace(/'/g, "''")}',
-			${sale.userId},
-			'${sale.syncStatus}',
-			'${sale.comment?.replace(/'/g, "''") ?? ""}',
-			${sale.discount ?? 0},
-			'${sale.customerName?.replace(/'/g, "''") ?? ""}',
-			'${sale.customerPhoneNo?.replace(/'/g, "''") ?? ""}',
-			'${sale.customerEmail?.replace(/'/g, "''") ?? ""}',
-			${sale.isDeposit ? 1 : 0},
-			${sale.paymentMethodId ?? 0}
+		const saleParams = [
+			sale.shopId,
+			Number(sale.amountPaid) || 0,
+			Number(sale.amountExpected) || 0,
+			Number(sale.amountPaid) || 0,
+			sale.actorId,
+			sale.isSubdealer ? 1 : 0,
+			sale.hybridRef ?? "",
+			sale.userId,
+			sale.syncStatus ?? "",
+			sale.comment ?? "",
+			Number(sale.discount) || 0,
+			sale.customerName ?? "",
+			sale.customerPhoneNo ?? "",
+			sale.customerEmail ?? "",
+			sale.isDeposit ? 1 : 0,
+			sale.paymentMethodId ?? 0,
+		];
+
+		await db.execute(insertSaleSQL, saleParams);
+
+		// 2️⃣ Get the saleId using last_insert_rowid()
+		const row = await db.select<{ id: number }[]>(
+			"SELECT last_insert_rowid() as id;"
 		);
-		`;
+		const saleId = row[0]?.id;
 
-		// 2️⃣ Get the last_insert_rowid() to use for products
-		sql += "SELECT last_insert_rowid() AS last_insert_rowid;";
+		if (!saleId) throw new Error("Failed to retrieve saleId");
 
-		// Execute sale insert and get saleId
-		const result = await db.select<{ last_insert_rowid: number }[]>(sql);
-		const saleId = result[0].last_insert_rowid;
-
-		// 3️⃣ Insert all products for the sale
 		if (sale.products?.length > 0) {
-			let productsSQL = "BEGIN TRANSACTION;";
+			const productSQL = `
+        INSERT INTO sales_products (
+          saleId,
+          productId,
+          quantity,
+          price
+        ) VALUES (?, ?, ?, ?);
+      `;
+
 			for (const p of sale.products) {
-				productsSQL += `
-			INSERT INTO sales_products (
-				saleId,
-				productId,
-				quantity,
-				price
-			) VALUES (
-				${saleId},
-				${p.id},
-				${p.quantity},
-				${p.price}
-			);
-			`;
+				await db.execute(productSQL, [
+					saleId,
+					p.id,
+					Number(p.quantity) || 0,
+					Number(p.price) || 0,
+				]);
 			}
-			productsSQL += "COMMIT;";
-			await db.execute(productsSQL);
 		}
 
-		// 4️⃣ Update customer balance if needed
+		// 4️⃣ Update customer balance safely
 		if (sale.balance > 0) {
 			const customerId = sale.isSubdealer
 				? sale.subdealerId
 				: sale.customerId;
-			await db.execute(`
-		UPDATE customers
-		SET balance = balance + ${sale.balance}
-		WHERE customerId = ${customerId};
-					`);
+
+			await db.execute(
+				`UPDATE customers SET balance = balance + ? WHERE customerId = ?`,
+				[Number(sale.balance) || 0, customerId]
+			);
 		}
 	} catch (err) {
 		console.error("Error inserting sale:", err);
@@ -158,33 +157,33 @@ export const upsertProducts = async (products: any[]) => {
 		const db = getDB();
 		if (!db) return;
 
-		let sql = "BEGIN TRANSACTION;";
+		const query = `
+      INSERT INTO products (
+        productId, name, price, image, isService, totalStock, barcode, costPrice
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(productId) DO UPDATE SET
+        name = excluded.name,
+        price = excluded.price,
+        image = excluded.image,
+        totalStock = excluded.totalStock,
+        barcode = excluded.barcode,
+        costPrice = excluded.costPrice;
+    `;
 
 		for (const p of products) {
-			sql += `
-			INSERT INTO products (
-				productId, name, price, image, isService, totalStock, barcode, costPrice
-			)
-			VALUES (${p.id}, '${p.summary.replace(/'/g, "''")}', ${parseFloat(p.price)}, ${
-				p.image ? `'${p.image}'` : "NULL"
-			}, ${p.isService ? 1 : 0}, ${Number(p.totalStock)}, '${
-				p.barcode
-			}', ${p.costPrice})
-			ON CONFLICT(productId) DO UPDATE SET
-				name = excluded.name,
-				price = excluded.price,
-				image = excluded.image,
-				totalStock = excluded.totalStock,
-				barcode = excluded.barcode,
-				costPrice = excluded.costPrice;
-		`;
+			await db.execute(query, [
+				p.id,
+				p.summary ?? "",
+				Number(p.price) || 0,
+				p.image ?? null,
+				p.isService ? 1 : 0,
+				Number(p.totalStock) || 0,
+				p.barcode ?? "",
+				Number(p.costPrice) || 0,
+			]);
 		}
-
-		sql += "COMMIT;";
-
-		await db.execute(sql);
 	} catch (err) {
-		console.log(err, "Error Uploading Products");
+		console.error(err, "Product Upload");
 	}
 };
 
@@ -196,37 +195,43 @@ export const upsertCustomers = async (
 		const db = getDB();
 		if (!db) return;
 
-		let sql = "BEGIN TRANSACTION;";
+		const sql = `
+      INSERT INTO customers (
+        customerId,
+        name,
+        email,
+        balance,
+        creditLimit,
+        phone,
+        isSubdealer
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(customerId) DO UPDATE SET
+        name = excluded.name,
+        balance = excluded.balance,
+        creditLimit = excluded.creditLimit,
+        phone = excluded.phone;
+    `;
 
 		for (const p of customers) {
-			sql += `
-			INSERT INTO customers (
-				customerId, name, email, balance, creditLimit, phone, isSubdealer
-			)
-			VALUES (${p.id}, '${p.fullName.replace(/'/g, "''")}', '${
-				p.email
-			}', ${parseFloat(p.balance)}, ${
-				p.creditLimit ? parseFloat(p.creditLimit) : 0
-			}, '${p.phoneNo}', ${isSubdealer ? 1 : 0})
-			ON CONFLICT(customerId) DO UPDATE SET
-				name = excluded.name,
-				balance = excluded.balance,
-				creditLimit = excluded.creditLimit,
-				phone = excluded.phone;
-		`;
+			await db.execute(sql, [
+				p.id,
+				p.fullName ?? "",
+				p.email ?? "",
+				Number(p.balance) || 0,
+				Number(p.creditLimit) || 0,
+				p.phoneNo ?? "",
+				isSubdealer ? 1 : 0,
+			]);
 		}
-
-		sql += "COMMIT;";
-
-		await db.execute(sql);
 	} catch (err) {
-		console.log(err, "Error Uploading Customers");
+		console.log("Error Uploading Customers:", err);
 	}
 };
 
 export const syncDBShop = async (shopId: string) => {
 	let res = await appService.fetchProducts(shopId);
 	if (res?.rows?.length > 0) {
+		console.log(res.rows, "producrs");
 		await upsertProducts(res.rows);
 	}
 	let resC = await appService.fetchCustomers(shopId);

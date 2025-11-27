@@ -61,7 +61,9 @@ const DetailsList = () => {
 									{dateFormat(li.createdAt, "mmm dd, yyyy")}
 								</span>
 							</div>
-							<span className="status">Pending</span>
+							<span className={`status ${li.syncStatus}`}>
+								{li.syncStatus}
+							</span>
 						</div>
 					</BoxList>
 				))}

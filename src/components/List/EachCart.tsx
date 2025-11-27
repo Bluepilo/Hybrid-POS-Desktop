@@ -10,7 +10,7 @@ import {
 	updateProductQuantity,
 } from "../../redux/cart/cartSlice";
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const EachCart = ({ item }: { item: any }) => {
 	const params = useParams();
@@ -19,10 +19,14 @@ const EachCart = ({ item }: { item: any }) => {
 
 	const dispatch = useAppDispatch();
 
-	const [value, setValue] = useState(`${item.quantity}`);
+	const [value, setValue] = useState(``);
 	const [discount, setDiscount] = useState(`${item.discount || 0}`);
 
 	const { shopInfo } = useAppSelector((state) => state.auth);
+
+	useEffect(() => {
+		setValue(`${item.quantity}`);
+	}, [item.quantity]);
 
 	const deleteHandler = () => {
 		dispatch(removeProductCart({ cartId, productId: item.id }));
