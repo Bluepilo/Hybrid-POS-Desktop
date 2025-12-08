@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { createCart } from "../../redux/cart/cartSlice";
 import { displayError } from "../../utils/display";
 import { syncDBShop } from "../../utils/db/dbUpdate";
+import { logout } from "../../redux/auth/authSlice";
 
 const Loading = () => {
 	const dispatch = useAppDispatch();
@@ -16,6 +17,7 @@ const Loading = () => {
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
 	const [progress, setProgress] = useState(0);
+	const [error, setError] = useState(false);
 
 	let id = useRef<any>(null);
 
@@ -41,6 +43,7 @@ const Loading = () => {
 			await syncDBShop(shopInfo?.id);
 			runInterval();
 		} catch (err) {
+			setError(true);
 			console.log(err);
 			displayError(
 				"There was an error updating your stocks. Please Contact Admin",
@@ -59,6 +62,11 @@ const Loading = () => {
 				return p + 5;
 			});
 		}, 500);
+	};
+
+	const onCancel = () => {
+		dispatch(logout());
+		navigate("/");
 	};
 
 	return (
@@ -104,6 +112,11 @@ const Loading = () => {
 						</p>
 					</div>
 				</>
+			)}
+			{error && (
+				<button className="button" onClick={onCancel}>
+					Close
+				</button>
 			)}
 		</LoadingScreen>
 	);

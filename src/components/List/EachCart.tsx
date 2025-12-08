@@ -32,16 +32,20 @@ const EachCart = ({ item }: { item: any }) => {
 		dispatch(removeProductCart({ cartId, productId: item.id }));
 	};
 
-	const updateHandler = (val: number) => {
-		if (!isNaN(val)) {
-			setValue(`${val}`);
-			dispatch(
-				updateProductQuantity({
-					cartId,
-					productId: item.id,
-					quantity: val,
-				})
-			);
+	const updateHandler = (val: any) => {
+		// Regex: allow only digits and optional decimal
+		if (/^\d*\.?\d*$/.test(val)) {
+			setValue(val);
+
+			if (val !== "" && !isNaN(Number(val))) {
+				dispatch(
+					updateProductQuantity({
+						cartId,
+						productId: item.id,
+						quantity: Number(val),
+					})
+				);
+			}
 		}
 	};
 

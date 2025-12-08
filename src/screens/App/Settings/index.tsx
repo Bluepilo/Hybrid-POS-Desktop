@@ -4,13 +4,14 @@ import { CardBox, InfoBox, SyncBox } from "../../../styles/basic.styles";
 import { IoMdRefresh } from "react-icons/io";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { syncDBShop } from "../../../utils/db/dbUpdate";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { displayError } from "../../../utils/display";
 import LoginModal from "../../../components/LoginModal";
 import { clearShop, logout } from "../../../redux/auth/authSlice";
 import { clearDB } from "../../../utils/db";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import { clearCart } from "../../../redux/cart/cartSlice";
+import { getVersion } from "@tauri-apps/api/app";
 
 const Settings = () => {
 	const dispatch = useAppDispatch();
@@ -18,8 +19,13 @@ const Settings = () => {
 	const [load, setLoad] = useState(false);
 	const [openSession, setOpenSession] = useState(false);
 	const [confirmOut, setConfirmOut] = useState(false);
+	const [version, setVersion] = useState("");
 
 	const { shopInfo } = useAppSelector((state) => state.auth);
+
+	useEffect(() => {
+		getVersion().then((v) => setVersion(v));
+	}, []);
 
 	const syncData = async () => {
 		if (shopInfo?.id) {
@@ -183,6 +189,7 @@ const Settings = () => {
 						</SyncBox>
 					</div>
 				</div>
+				<p className="mt-5 text-center">Version: {version}</p>
 			</div>
 			<LoginModal
 				open={openSession}

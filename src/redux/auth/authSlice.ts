@@ -50,7 +50,6 @@ export const loginOffline = createAsyncThunk(
 	"auth/loginOffline",
 	async (data: any, thunkAPI) => {
 		try {
-			console.log(data.email, "data");
 			const db = getDB();
 
 			const result: any[] = await db.select(

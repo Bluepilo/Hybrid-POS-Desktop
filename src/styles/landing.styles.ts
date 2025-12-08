@@ -299,4 +299,18 @@ export const LoadingScreen = styled.div<{ val: number }>`
 		justify-content: center;
 		align-items: center;
 	}
+
+	.button {
+		position: absolute;
+		top: 50%;
+		z-index: 99991;
+		left: 50%;
+		background: #0141ff;
+		border: 0;
+		outline: 0;
+		color: #fff;
+		font-size: 0.9rem;
+		padding: 10px 40px;
+		border-radius: 10px;
+	}
 `;

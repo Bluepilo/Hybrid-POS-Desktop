@@ -13,7 +13,7 @@ export const TableDiv = styled.table`
 		top: 0;
 		background: #000d33;
 		color: #fff;
-		z-index: 2;
+		/* z-index: 2; */
 		height: 3.5rem;
 		vertical-align: middle;
 		text-transform: uppercase;

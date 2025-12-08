@@ -9,14 +9,14 @@ const fetchProducts = async (id: string) => {
 
 const fetchCustomers = async (id: string) => {
 	const { data } = await apiRequest("baseUrl").get(
-		`/global/customer/all?page=1&limit=1000&shopId=${id}`
+		`/customer/all?page=1&limit=1000&shopId=${id}`
 	);
 	return data.data;
 };
 
 const fetchSubdealers = async (id: string) => {
 	const { data } = await apiRequest("baseUrl").get(
-		`/global/subdealer/all?page=1&limit=1000&shopId=${id}`
+		`/subdealer/all?page=1&limit=1000&shopId=${id}`
 	);
 	return data?.data;
 };

@@ -56,6 +56,14 @@ export const insertSaleWithProducts = async (sale: any) => {
 
 		if (!saleId) throw new Error("Failed to retrieve saleId");
 
+		console.log(
+			"Products Received",
+			sale.products,
+			"isArray",
+			Array.isArray(sale.products)
+		);
+		console.log(saleId, "SALEID");
+
 		if (sale.products?.length > 0) {
 			const productSQL = `
         INSERT INTO sales_products (

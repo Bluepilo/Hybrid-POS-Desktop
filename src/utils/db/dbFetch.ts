@@ -3,27 +3,30 @@ import { getDB } from "../db";
 export const fetchAllSales = async ({
 	page = 1,
 	limit = 10,
-	actorId = null,
-	startDate = null,
-	endDate = null,
+	startDate = null as any,
+	endDate = null as any,
+	isSubdealer = null as any,
+	syncStatus = null as any,
 }) => {
 	const db = getDB();
 	const offset = (page - 1) * limit;
 
-	const totalS = await db.select("SELECT COUNT(*) AS total FROM sales;");
-	console.log("➡ TOTAL SALES:", totalS);
-
 	let whereClauses: string[] = [];
 	let params: (string | number)[] = [];
-
-	if (actorId) {
-		whereClauses.push("s.actorId = ?");
-		params.push(actorId);
-	}
 
 	if (startDate && endDate) {
 		whereClauses.push("DATE(s.createdAt) BETWEEN DATE(?) AND DATE(?)");
 		params.push(startDate, endDate);
+	}
+
+	if (isSubdealer) {
+		whereClauses.push("s.isSubdealer = ?");
+		params.push(isSubdealer === "subdealer" ? 1 : 0); // SQLite stores booleans as 0/1
+	}
+
+	if (syncStatus) {
+		whereClauses.push("s.syncStatus = ?");
+		params.push(syncStatus);
 	}
 
 	const whereSQL = whereClauses.length
@@ -96,9 +99,9 @@ export const fetchAllSales = async ({
 export const getSalesProducts = async ({
 	page = 1,
 	limit = 10,
-	saleId = null,
-	startDate = null,
-	endDate = null,
+	startDate = null as any,
+	endDate = null as any,
+	syncStatus = null as any,
 }) => {
 	const db = getDB();
 	const offset = (page - 1) * limit;
@@ -106,14 +109,14 @@ export const getSalesProducts = async ({
 	let whereClauses: string[] = [];
 	let params: (string | number)[] = [];
 
-	if (saleId) {
-		whereClauses.push("sp.saleId = ?");
-		params.push(saleId);
-	}
-
 	if (startDate && endDate) {
 		whereClauses.push("DATE(sp.createdAt) BETWEEN DATE(?) AND DATE(?)");
 		params.push(startDate, endDate);
+	}
+
+	if (syncStatus) {
+		whereClauses.push("s.syncStatus = ?");
+		params.push(syncStatus);
 	}
 
 	const whereSQL = whereClauses.length

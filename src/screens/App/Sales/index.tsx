@@ -23,21 +23,41 @@ const Sales = () => {
 	const [limit, setLimit] = useState(100);
 	const [page, setPage] = useState(1);
 
+	// Filters
+	const [dateType, setDateType] = useState("");
+	const [startDate, setStartDate] = useState("");
+	const [endDate, setEndDate] = useState("");
+	const [syncStatus, setSyncStatus] = useState("");
+	const [customerType, setCustomerType] = useState("");
+
 	useEffect(() => {
 		listSales();
 		listVSales(true);
-	}, [limit, page]);
+	}, [limit, page, startDate, endDate, customerType, syncStatus]);
 
 	const listSales = async () => {
 		try {
-			let res = await getSalesProducts({ limit, page });
+			let res = await getSalesProducts({
+				limit,
+				page,
+				startDate,
+				endDate,
+				syncStatus,
+			});
 			setdList(res);
 		} catch (err) {}
 	};
 
 	const listVSales = async (load?: boolean) => {
 		try {
-			let res = await fetchAllSales({ limit, page });
+			let res = await fetchAllSales({
+				limit,
+				page,
+				startDate,
+				endDate,
+				isSubdealer: customerType,
+				syncStatus,
+			});
 			setvList(res);
 			if (load) {
 				syncAllSales(res);
@@ -59,7 +79,7 @@ const Sales = () => {
 						await updateSaleSyncStatus(sale.id, "success");
 						dispatch(reduceSync());
 					} catch (err) {
-						let msg = displayError(err, true);
+						let msg = displayError(err, false);
 						await updateSaleSyncStatus(sale.id, "failed", msg);
 					}
 				}
@@ -70,6 +90,14 @@ const Sales = () => {
 			// listVSales(false);
 			// listSales();
 		}
+	};
+
+	const clearFilter = () => {
+		setStartDate("");
+		setEndDate("");
+		setDateType("");
+		setCustomerType("");
+		setSyncStatus("");
 	};
 
 	return (
@@ -89,8 +117,21 @@ const Sales = () => {
 					</select>
 				</div>
 			</PosTitleSearch>
-			<Stats />
-			<SalesFilter />
+			<Stats list={vlist} />
+			<SalesFilter
+				startDate={startDate}
+				setStartDate={setStartDate}
+				endDate={endDate}
+				setEndDate={setEndDate}
+				syncStatus={syncStatus}
+				setSyncStatus={setSyncStatus}
+				customerType={customerType}
+				setCustomerType={setCustomerType}
+				dateType={dateType}
+				setDateType={setDateType}
+				onClear={clearFilter}
+				view={viewType}
+			/>
 			{viewType === "details" ? (
 				<SalesDetailsView list={dlist} />
 			) : (
