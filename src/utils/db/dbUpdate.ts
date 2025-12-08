@@ -231,7 +231,6 @@ export const upsertCustomers = async (
 export const syncDBShop = async (shopId: string) => {
 	let res = await appService.fetchProducts(shopId);
 	if (res?.rows?.length > 0) {
-		console.log(res.rows, "producrs");
 		await upsertProducts(res.rows);
 	}
 	let resC = await appService.fetchCustomers(shopId);

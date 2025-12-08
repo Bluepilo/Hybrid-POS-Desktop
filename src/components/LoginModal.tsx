@@ -4,7 +4,7 @@ import { SessionDiv } from "../styles/form.styles";
 import ModalComponent from "./ModalComponent";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { Spinner } from "react-bootstrap";
-import { displayError, displaySuccess } from "../utils/display";
+import { displayError } from "../utils/display";
 import authService from "../redux/auth/authService";
 import { useAppSelector } from "../utils/hooks";
 
@@ -31,7 +31,6 @@ const LoginModal = ({
 			localStorage.setItem("@accesstoken", res?.accessToken);
 			setLoad(false);
 			toggleLogin(false);
-			displaySuccess("Logged In!", "Session is now active");
 		} catch (err) {
 			displayError(err, true);
 			setLoad(false);
@@ -42,7 +41,7 @@ const LoginModal = ({
 		<ModalComponent open={open} close={() => toggleLogin(false)}>
 			<SessionDiv>
 				<div>
-					<h5 className="mb-4">Session Expired! Enter Password.</h5>
+					<h5 className="mb-4">Please Enter Your Password</h5>
 					<FlexBetween>
 						<label>Password</label>
 						<button
@@ -74,7 +73,7 @@ const LoginModal = ({
 								size="sm"
 							/>
 						)}
-						<span>Login</span>
+						<span>Submit</span>
 					</button>
 				</div>
 			</SessionDiv>

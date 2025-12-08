@@ -17,6 +17,7 @@ const Settings = () => {
 
 	const [load, setLoad] = useState(false);
 	const [openSession, setOpenSession] = useState(false);
+	const [confirmOut, setConfirmOut] = useState(false);
 
 	const { shopInfo } = useAppSelector((state) => state.auth);
 
@@ -47,14 +48,20 @@ const Settings = () => {
 			}
 		);
 		if (confirmed) {
-			try {
-				await clearDB();
-				dispatch(logout());
-				dispatch(clearShop());
-				dispatch(clearCart());
-			} catch (err) {
-				displayError(err, true);
-			}
+			setConfirmOut(true);
+			setOpenSession(true);
+		}
+	};
+
+	const logoutHandler = async () => {
+		setConfirmOut(false);
+		try {
+			await clearDB();
+			dispatch(logout());
+			dispatch(clearShop());
+			dispatch(clearCart());
+		} catch (err) {
+			displayError(err, true);
 		}
 	};
 
@@ -177,7 +184,15 @@ const Settings = () => {
 					</div>
 				</div>
 			</div>
-			<LoginModal open={openSession} toggleLogin={setOpenSession} />
+			<LoginModal
+				open={openSession}
+				toggleLogin={(arg) => {
+					setOpenSession(arg);
+					if (confirmOut) {
+						logoutHandler();
+					}
+				}}
+			/>
 		</div>
 	);
 };

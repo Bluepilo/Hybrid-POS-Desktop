@@ -41,6 +41,7 @@ const Loading = () => {
 			await syncDBShop(shopInfo?.id);
 			runInterval();
 		} catch (err) {
+			console.log(err);
 			displayError(
 				"There was an error updating your stocks. Please Contact Admin",
 				true

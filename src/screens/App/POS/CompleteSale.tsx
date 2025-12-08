@@ -162,7 +162,6 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 				syncStatus: "pending",
 				balance: balanceAfter(),
 			};
-			console.log(payload, "payload");
 			setLoad(true);
 			await insertSaleWithProducts(payload);
 			dispatch(removeFromCart(cartId));
