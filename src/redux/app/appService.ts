@@ -2,27 +2,37 @@ import { apiRequest } from "../../utils/axiosInstance";
 
 const fetchProducts = async (id: string) => {
 	const { data } = await apiRequest("baseUrl").get(
-		`/product/all/shop/${id}?all=true`
+		`/inventory/product/all/shop/${id}?all=true`,
 	);
 	return data?.data;
 };
 
-const fetchCustomers = async (id: string) => {
+const fetchCustomers = async () => {
 	const { data } = await apiRequest("baseUrl").get(
-		`/customer/all?page=1&limit=1000&shopId=${id}`
+		`/global/customer?category=individual`,
 	);
 	return data.data;
 };
 
-const fetchSubdealers = async (id: string) => {
+const fetchSubdealers = async () => {
 	const { data } = await apiRequest("baseUrl").get(
-		`/subdealer/all?page=1&limit=1000&shopId=${id}`
+		`/global/customer?category=business`,
 	);
 	return data?.data;
 };
 
 const makeSale = async (obj: any) => {
-	const { data } = await apiRequest("baseUrl").post(`/sale/make-sale`, obj);
+	const { data } = await apiRequest("baseUrl").post(
+		`/inventory/sale/make-sale`,
+		obj,
+	);
+	return data.data;
+};
+
+const customerTypes = async () => {
+	const { data } = await apiRequest("baseUrl").get(
+		`/inventory/sale/customer-types-by-category`,
+	);
 	return data.data;
 };
 
@@ -30,6 +40,7 @@ const appService = {
 	fetchProducts,
 	fetchCustomers,
 	fetchSubdealers,
+	customerTypes,
 	makeSale,
 };
 

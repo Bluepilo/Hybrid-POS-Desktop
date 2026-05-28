@@ -50,7 +50,7 @@ export const insertSaleWithProducts = async (sale: any) => {
 
 		// 2️⃣ Get the saleId using last_insert_rowid()
 		const row = await db.select<{ id: number }[]>(
-			"SELECT last_insert_rowid() as id;"
+			"SELECT last_insert_rowid() as id;",
 		);
 		const saleId = row[0]?.id;
 
@@ -60,7 +60,7 @@ export const insertSaleWithProducts = async (sale: any) => {
 			"Products Received",
 			sale.products,
 			"isArray",
-			Array.isArray(sale.products)
+			Array.isArray(sale.products),
 		);
 		console.log(saleId, "SALEID");
 
@@ -92,7 +92,7 @@ export const insertSaleWithProducts = async (sale: any) => {
 
 			await db.execute(
 				`UPDATE customers SET balance = balance + ? WHERE customerId = ?`,
-				[Number(sale.balance) || 0, customerId]
+				[Number(sale.balance) || 0, customerId],
 			);
 		}
 	} catch (err) {
@@ -151,7 +151,7 @@ export const getSales = async ({
     ORDER BY s.createdAt DESC
     LIMIT ? OFFSET ?
     `,
-		[...params, limit, offset]
+		[...params, limit, offset],
 	);
 
 	return rows.map((row) => ({
@@ -167,15 +167,17 @@ export const upsertProducts = async (products: any[]) => {
 
 		const query = `
       INSERT INTO products (
-        productId, name, price, image, isService, totalStock, barcode, costPrice
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        productId, name, price, image, isService, totalStock, barcode, costPrice, vatType, measurement
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(productId) DO UPDATE SET
         name = excluded.name,
         price = excluded.price,
         image = excluded.image,
         totalStock = excluded.totalStock,
         barcode = excluded.barcode,
-        costPrice = excluded.costPrice;
+        costPrice = excluded.costPrice,
+		vatType = excluded.vatType,
+		measurement = excluded.measurement;
     `;
 
 		for (const p of products) {
@@ -188,6 +190,8 @@ export const upsertProducts = async (products: any[]) => {
 				Number(p.totalStock) || 0,
 				p.barcode ?? "",
 				Number(p.costPrice) || 0,
+				p.vatType,
+				p.measureUnit,
 			]);
 		}
 	} catch (err) {
@@ -195,9 +199,37 @@ export const upsertProducts = async (products: any[]) => {
 	}
 };
 
+export const upsertCustomerTypes = async (customer: any[]) => {
+	try {
+		const db = getDB();
+		if (!db) return;
+
+		const query = `
+      INSERT INTO customerTypes (
+        typeId, name, percentage, markType
+      ) VALUES (?, ?, ?, ?)
+      ON CONFLICT(typeId) DO UPDATE SET
+        name = excluded.name,
+        percentage = excluded.percentage,
+        markType = excluded.markType;
+    `;
+
+		for (const p of customer) {
+			await db.execute(query, [
+				p.id,
+				p.name,
+				p.price?.percentage ?? "",
+				p.price?.type ?? "",
+			]);
+		}
+	} catch (err) {
+		console.error(err, "TypeS Upload");
+	}
+};
+
 export const upsertCustomers = async (
 	customers: any[],
-	isSubdealer: boolean
+	isSubdealer: boolean,
 ) => {
 	try {
 		const db = getDB();
@@ -211,7 +243,7 @@ export const upsertCustomers = async (
         balance,
         creditLimit,
         phone,
-        isSubdealer
+        isBiz
       ) VALUES (?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(customerId) DO UPDATE SET
         name = excluded.name,
@@ -223,7 +255,7 @@ export const upsertCustomers = async (
 		for (const p of customers) {
 			await db.execute(sql, [
 				p.id,
-				p.fullName ?? "",
+				p.firstName ? `${p.firstName} ${p.lastName}` : p.name,
 				p.email ?? "",
 				Number(p.balance) || 0,
 				Number(p.creditLimit) || 0,
@@ -241,20 +273,26 @@ export const syncDBShop = async (shopId: string) => {
 	if (res?.rows?.length > 0) {
 		await upsertProducts(res.rows);
 	}
-	let resC = await appService.fetchCustomers(shopId);
+	let resC = await appService.fetchCustomers();
 	if (resC?.rows?.length > 0) {
 		await upsertCustomers(resC.rows, false);
 	}
-	let resS = await appService.fetchSubdealers(shopId);
+	let resS = await appService.fetchSubdealers();
 	if (resS?.rows?.length > 0) {
 		await upsertCustomers(resS.rows, true);
+	}
+	let resT = await appService.customerTypes();
+	if (resT.business && resT.individual) {
+		let biz = resT.business.map((b: any) => ({ ...b, isBiz: true }));
+		let ind = resT.individual.map((i: any) => ({ ...i, isBiz: false }));
+		await upsertCustomerTypes(biz.concat(ind));
 	}
 };
 
 export const updateSaleSyncStatus = async (
 	saleId: number,
 	syncStatus: string,
-	reason?: string
+	reason?: string,
 ) => {
 	const db = getDB();
 	try {
@@ -262,7 +300,7 @@ export const updateSaleSyncStatus = async (
 			`UPDATE sales
 			 SET syncStatus = ?, failReason = ?
 			 WHERE id = ?`,
-			[syncStatus, reason || null, saleId]
+			[syncStatus, reason || null, saleId],
 		);
 	} catch (err) {
 		console.error("Error updating syncStatus:", err);

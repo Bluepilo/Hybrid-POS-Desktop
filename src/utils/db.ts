@@ -30,7 +30,8 @@ export async function initDB() {
 				totalStock INT,
 				isService BOOLEAN,
 				barcode TEXT,
-				measurement TEXT
+				measurement TEXT,
+				vatType TEXT
 			)
 		`);
 
@@ -43,7 +44,8 @@ export async function initDB() {
 				balance REAL,
 				creditLimit REAL,
 				phone TEXT,
-				isSubdealer BOOLEAN
+				isBiz BOOLEAN,
+				customerTypeId INTEGER
 			)
 		`);
 
@@ -102,6 +104,19 @@ export async function initDB() {
 			)
 		`);
 
+		await db.execute(`
+			CREATE TABLE IF NOT EXISTS customerTypes (
+				id INTEGER PRIMARY KEY,
+				typeId INTEGER UNIQUE,
+				name TEXT,
+				percentage REAL,
+				markType TEXT,
+				createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+				updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+				isBiz BOOLEAN
+			)
+		`);
+
 		console.log("✅ Tables created successfully.");
 		return db;
 	} catch (err) {
@@ -127,6 +142,7 @@ export async function clearDB() {
 		await db.execute(`DROP TABLE IF EXISTS products`);
 		await db.execute(`DROP TABLE IF EXISTS customers`);
 		await db.execute(`DROP TABLE IF EXISTS shops`);
+		await db.execute(`DROP TABLE IF EXISTS customerTypes`);
 
 		await db.execute(`PRAGMA foreign_keys = ON`);
 
@@ -154,7 +170,7 @@ export const alterColumn = async () => {
 		} catch (err) {
 			console.warn(
 				"Could not add productID column (maybe it already exists):",
-				err
+				err,
 			);
 		}
 	}
