@@ -206,12 +206,13 @@ export const upsertCustomerTypes = async (customer: any[]) => {
 
 		const query = `
       INSERT INTO customerTypes (
-        typeId, name, percentage, markType
-      ) VALUES (?, ?, ?, ?)
+        typeId, name, percentage, markType, isBiz
+      ) VALUES (?, ?, ?, ?, ?)
       ON CONFLICT(typeId) DO UPDATE SET
         name = excluded.name,
         percentage = excluded.percentage,
-        markType = excluded.markType;
+        markType = excluded.markType,
+		isBiz = excluded.isBiz;
     `;
 
 		for (const p of customer) {
@@ -220,6 +221,7 @@ export const upsertCustomerTypes = async (customer: any[]) => {
 				p.name,
 				p.price?.percentage ?? "",
 				p.price?.type ?? "",
+				p.isBiz ? 1 : 0,
 			]);
 		}
 	} catch (err) {
@@ -243,13 +245,15 @@ export const upsertCustomers = async (
         balance,
         creditLimit,
         phone,
-        isBiz
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        isBiz,
+		customerTypeId
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(customerId) DO UPDATE SET
         name = excluded.name,
         balance = excluded.balance,
         creditLimit = excluded.creditLimit,
-        phone = excluded.phone;
+        phone = excluded.phone,
+		customerTypeId = excluded.customerTypeId;
     `;
 
 		for (const p of customers) {
@@ -261,6 +265,7 @@ export const upsertCustomers = async (
 				Number(p.creditLimit) || 0,
 				p.phoneNo ?? "",
 				isSubdealer ? 1 : 0,
+				p.customerType?.id,
 			]);
 		}
 	} catch (err) {

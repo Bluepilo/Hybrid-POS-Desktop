@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import CompleteSale from "./CompleteSale";
 import { createCart, updateCartField } from "../../../redux/cart/cartSlice";
-import { loadProducts } from "../../../redux/app/appSlice";
+import { loadCustomerTypes, loadProducts } from "../../../redux/app/appSlice";
 import Button from "../../../components/Button";
 import { generateId } from "../../../utils/data";
 import { FiRefreshCcw } from "react-icons/fi";
@@ -15,6 +15,7 @@ import { ButtonNormal } from "../../../styles/form.styles";
 import { syncDBShop } from "../../../utils/db/dbUpdate";
 import { Spinner } from "react-bootstrap";
 import { displayError } from "../../../utils/display";
+import SelectField from "../../../components/SelectField";
 
 const POS = () => {
 	const params = useParams();
@@ -28,12 +29,29 @@ const POS = () => {
 
 	const { cartItems } = useAppSelector((state) => state.cart);
 	const { shopInfo } = useAppSelector((state) => state.auth);
+	const { customerTypes } = useAppSelector((state) => state.app);
 
 	const cartInfo = cartItems.find((cart) => cart.cartId === params?.tabId);
 
 	useEffect(() => {
 		dispatch(loadProducts());
+		dispatch(loadCustomerTypes());
 	}, []);
+
+	useEffect(() => {
+		if (customerTypes && cartInfo?.customerTypeId) {
+			let isBiz = customerTypes?.find(
+				(c: any) => c.typeId == cartInfo.customerTypeId,
+			)?.isBiz;
+			dispatch(
+				updateCartField({
+					cartId: params?.tabId || "",
+					value: isBiz ? true : false,
+					field: "isBiz",
+				}),
+			);
+		}
+	}, [cartInfo?.customerTypeId]);
 
 	const syncHandler = async () => {
 		try {
@@ -51,14 +69,14 @@ const POS = () => {
 			dispatch(
 				updateCartField({
 					cartId: params?.tabId || "",
-					value: value === "walk-in" ? false : true,
-					field: "isSubdealer",
-				})
+					value,
+					field: "customerTypeId",
+				}),
 			);
 		} else {
 			displayError(
 				`Please clear cart before switching customer type`,
-				true
+				true,
 			);
 		}
 	};
@@ -69,7 +87,7 @@ const POS = () => {
 				cartId: params?.tabId || "",
 				value: value === "normal" ? false : true,
 				field: "isAdvanced",
-			})
+			}),
 		);
 	};
 
@@ -95,28 +113,55 @@ const POS = () => {
 						>
 							<PosTitleSearch>
 								<div className="title">
-									<h1>Sell to a</h1>
-									<select
-										value={
-											cartInfo?.isSubdealer
-												? "subdealer"
-												: "walk-in"
-										}
-										onChange={(e) =>
-											selectCustomer(e.target.value)
-										}
-									>
-										<option value={"walk-in"}>
-											Walk-In
-										</option>
-										<option value={"subdealer"}>
-											Subdealer
-										</option>
-									</select>
-									<h1>Customer</h1>
+									<h1>Sell to</h1>
+									<div className="select-field">
+										<SelectField
+											options={[
+												{
+													label: "Individual (B2C)",
+													options:
+														customerTypes
+															?.filter(
+																(c: any) =>
+																	!c.isBiz,
+															)
+															?.map((li: any) => {
+																return {
+																	...li,
+																	label: li.name,
+																	value: li.typeId,
+																	type: "individual",
+																};
+															}) || [],
+												},
+												{
+													label: "Company (B2B)",
+													options:
+														customerTypes
+															?.filter(
+																(c: any) =>
+																	c.isBiz,
+															)
+															?.map((li: any) => {
+																return {
+																	...li,
+																	label: li.name,
+																	value: li.typeId,
+																	type: "business",
+																};
+															}) || [],
+												},
+											]}
+											value={
+												cartInfo?.customerTypeId || ""
+											}
+											setValue={selectCustomer}
+											noMargin
+										/>
+									</div>
 									{Array.isArray(cartInfo?.products) &&
 										cartInfo.products.length > 0 && (
-											<span>
+											<span className="count">
 												{cartInfo?.products?.length}
 											</span>
 										)}

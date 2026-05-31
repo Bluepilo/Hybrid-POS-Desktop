@@ -8,10 +8,34 @@ const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 	const dispatch = useAppDispatch();
 
 	const { cartItems } = useAppSelector((state) => state.cart);
-
-	const cartInfo = cartItems.find((cart) => cart.cartId === cartId);
+	const { customerTypes } = useAppSelector((state) => state.app);
 
 	const { shopInfo } = useAppSelector((state) => state.auth);
+
+	const customerType = cartItems.find(
+		(cart) => cart.cartId === cartId,
+	)?.customerTypeId;
+
+	const getPriceType = (costPrice: number) => {
+		let priceInfo = customerTypes?.find(
+			(c: any) => c.typeId == customerType,
+		);
+		if (priceInfo?.percentage) {
+			let finalAmount;
+
+			let val = Number(costPrice) * (Number(priceInfo.percentage) / 100);
+
+			if (priceInfo.markType === "markdown") {
+				finalAmount = Number(costPrice) - val;
+			} else {
+				finalAmount = Number(costPrice) + val;
+			}
+
+			return finalAmount;
+		} else {
+			return 0;
+		}
+	};
 
 	const cartHandler = () => {
 		dispatch(
@@ -21,11 +45,10 @@ const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 					id: product.productId,
 					name: product.name,
 					quantity: 1,
-					price: cartInfo?.isSubdealer
-						? product.costPrice
-						: product.price,
+					price: product.price || getPriceType(product.costPrice),
+					vat: product.vatType,
 				},
-			})
+			}),
 		);
 	};
 
@@ -45,9 +68,7 @@ const EachProduct = ({ product, cartId }: { product: any; cartId: any }) => {
 				<h6>
 					{shopInfo?.currency}{" "}
 					{numberWithCommas(
-						cartInfo?.isSubdealer
-							? product.costPrice
-							: product.price
+						product.price || getPriceType(product.costPrice),
 					)}
 				</h6>
 			</div>

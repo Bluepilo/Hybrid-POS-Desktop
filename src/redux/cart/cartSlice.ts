@@ -18,7 +18,7 @@ export const cartSlice = createSlice({
 				products: [],
 			};
 			state.cartItems
-				? state.cartItems.push(payload)
+				? state.cartItems.unshift(payload)
 				: (state.cartItems = [payload]);
 		},
 		updateCartField: (
@@ -27,10 +27,10 @@ export const cartSlice = createSlice({
 				cartId: string;
 				field: keyof CartItemType;
 				value: any;
-			}>
+			}>,
 		) => {
 			const cart = state.cartItems.find(
-				(c) => c.cartId === action.payload.cartId
+				(c) => c.cartId === action.payload.cartId,
 			);
 			if (cart) {
 				(cart[action.payload.field] as any) = action.payload.value;
@@ -38,19 +38,19 @@ export const cartSlice = createSlice({
 		},
 		addProductToCart: (
 			state,
-			action: PayloadAction<{ cartId: string; product: Product }>
+			action: PayloadAction<{ cartId: string; product: Product }>,
 		) => {
 			const { cartId, product } = action.payload;
 			const cart = state.cartItems.find((c) => c.cartId === cartId);
 			if (cart) {
 				if (cart) {
 					const existingProduct = cart.products.find(
-						(p) => p.id === product.id
+						(p) => p.id === product.id,
 					);
 					if (existingProduct) {
 						existingProduct.quantity += 1;
 					} else {
-						cart.products.push(product);
+						cart.products.unshift(product);
 					}
 				}
 			}
@@ -61,17 +61,37 @@ export const cartSlice = createSlice({
 				cartId: string;
 				productId: number;
 				quantity: number;
-			}>
+			}>,
 		) => {
 			const cart = state.cartItems.find(
-				(c) => c.cartId === action.payload.cartId
+				(c) => c.cartId === action.payload.cartId,
 			);
 			if (cart) {
 				const product = cart.products.find(
-					(p) => p.id === action.payload.productId
+					(p) => p.id === action.payload.productId,
 				);
 				if (product) {
 					product.quantity = action.payload.quantity;
+				}
+			}
+		},
+		updateProductPrice: (
+			state,
+			action: PayloadAction<{
+				cartId: string;
+				productId: number;
+				price: number;
+			}>,
+		) => {
+			const cart = state.cartItems.find(
+				(c) => c.cartId === action.payload.cartId,
+			);
+			if (cart) {
+				const product = cart.products.find(
+					(p) => p.id === action.payload.productId,
+				);
+				if (product) {
+					product.price = action.payload.price;
 				}
 			}
 		},
@@ -81,14 +101,14 @@ export const cartSlice = createSlice({
 				cartId: string;
 				productId: number;
 				discount: number;
-			}>
+			}>,
 		) => {
 			const cart = state.cartItems.find(
-				(c) => c.cartId === action.payload.cartId
+				(c) => c.cartId === action.payload.cartId,
 			);
 			if (cart) {
 				const product = cart.products.find(
-					(p) => p.id === action.payload.productId
+					(p) => p.id === action.payload.productId,
 				);
 				if (product) {
 					product.discount = action.payload.discount;
@@ -101,14 +121,14 @@ export const cartSlice = createSlice({
 				cartId: string;
 				productId: number;
 				isPercent: boolean;
-			}>
+			}>,
 		) => {
 			const cart = state.cartItems.find(
-				(c) => c.cartId === action.payload.cartId
+				(c) => c.cartId === action.payload.cartId,
 			);
 			if (cart) {
 				const product = cart.products.find(
-					(p) => p.id === action.payload.productId
+					(p) => p.id === action.payload.productId,
 				);
 				if (product) {
 					product.discountType = action.payload.isPercent
@@ -122,20 +142,20 @@ export const cartSlice = createSlice({
 			action: PayloadAction<{
 				cartId: string;
 				productId: number;
-			}>
+			}>,
 		) => {
 			const cart = state.cartItems.find(
-				(c) => c.cartId === action.payload.cartId
+				(c) => c.cartId === action.payload.cartId,
 			);
 			if (cart) {
 				cart.products = cart.products.filter(
-					(p) => p.id != action.payload.productId
+					(p) => p.id != action.payload.productId,
 				);
 			}
 		},
 		removeFromCart: (state, action: PayloadAction<string>) => {
 			state.cartItems = state.cartItems.filter(
-				(cart) => cart.cartId !== action.payload
+				(cart) => cart.cartId !== action.payload,
 			);
 		},
 		clearCart: (state) => {
@@ -150,6 +170,7 @@ export const {
 	createCart,
 	addProductToCart,
 	updateCartField,
+	updateProductPrice,
 	updateProductQuantity,
 	updateProductDiscount,
 	updateProductDiscountType,

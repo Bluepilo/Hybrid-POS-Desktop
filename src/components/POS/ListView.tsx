@@ -2,29 +2,63 @@ import { CartTotal, ScanBtn } from "../../styles/pos.styles";
 import { TbTextScan2 } from "react-icons/tb";
 import { TableDiv } from "../../styles/table.styles";
 import EachCartList from "../List/EachCartList";
-import { TableArea, ZIndex } from "../../styles/basic.styles";
+import { TableArea } from "../../styles/basic.styles";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
-import { numberWithCommas } from "../../utils/currency";
+import { formatCurrency } from "../../utils/currency";
 import SelectField from "../SelectField";
 import { useState } from "react";
 import { addProductToCart, updateCartField } from "../../redux/cart/cartSlice";
+import { displayError } from "../../utils/display";
 
 const ListView = () => {
 	const dispatch = useAppDispatch();
 
 	const params = useParams();
 
-	const { products } = useAppSelector((state) => state.app);
+	const { products, customerTypes } = useAppSelector((state) => state.app);
 	const { cartItems } = useAppSelector((state) => state.cart);
-	const { shopInfo } = useAppSelector((state) => state.auth);
+	const { shopInfo, user } = useAppSelector((state) => state.auth);
 
 	const productsInCart =
 		cartItems.find((cart) => cart.cartId === params?.tabId)?.products || [];
 
+	const customerType = cartItems.find(
+		(cart) => cart.cartId === params?.tabId,
+	)?.customerTypeId;
+
 	const [prod, setProd] = useState("");
 
+	const getPriceType = (costPrice: number) => {
+		let priceInfo = customerTypes?.find(
+			(c: any) => c.typeId == customerType,
+		);
+		if (priceInfo?.percentage) {
+			let finalAmount;
+
+			let val = Number(costPrice) * (Number(priceInfo.percentage) / 100);
+
+			if (priceInfo.markType === "markdown") {
+				finalAmount = Number(costPrice) - val;
+			} else {
+				finalAmount = Number(costPrice) + val;
+			}
+
+			return finalAmount;
+		} else {
+			displayError("No Price Found. Select Customer Type", true);
+			return 0;
+		}
+	};
+
 	const cartHandler = (val: any) => {
+		if (!customerType) {
+			displayError(
+				"Please Select who you are selling to before picking a product",
+				true,
+			);
+			return;
+		}
 		setProd(val);
 		let product = products.find((p: any) => p.productId == val);
 		if (product) {
@@ -35,9 +69,10 @@ const ListView = () => {
 						id: product.productId,
 						name: product.name,
 						quantity: 1,
-						price: product.price,
+						price: product.price || getPriceType(product.costPrice),
+						vat: product.vatType,
 					},
-				})
+				}),
 			);
 			setProd("");
 		}
@@ -49,45 +84,48 @@ const ListView = () => {
 				cartId: params?.tabId || "",
 				value: true,
 				field: "proceed",
-			})
+			}),
 		);
 	};
 
-	let totalAmount = productsInCart.reduce(
-		(a: any, b: any) => a + b.price * b.quantity,
-		0
-	);
+	const totalAmount = productsInCart.reduce((sum, item) => {
+		const subtotal = Number(item.price) * Number(item.quantity);
 
-	let totalDiscount = productsInCart.reduce(
-		(a: any, b: any) =>
-			a +
-			(b.discountType === "currency"
-				? b.discount || 0
-				: ((b.discount || 0) / 100) * (b.price * b.quantity)),
-		0
-	);
+		const discountAmount =
+			item.discountType === "currency"
+				? Number(item.discount || 0)
+				: subtotal * (Number(item.discount || 0) / 100);
+
+		const afterDiscount = subtotal - discountAmount;
+
+		const finalItemTotal =
+			item.vat === "exclusive"
+				? afterDiscount *
+					(1 + Number(user.business?.vatRate || 0) / 100)
+				: afterDiscount;
+
+		return sum + finalItemTotal;
+	}, 0);
 
 	return (
 		<div className="d-flex flex-column h-100">
-			<div className="row">
+			<div className="row mt-2">
 				<div className="col-8">
 					<div className="row align-items-center">
 						<div className="col-9">
-							<ZIndex>
-								<SelectField
-									value={prod}
-									setValue={cartHandler}
-									options={products?.map((p: any) => {
-										return {
-											...p,
-											value: p.productId,
-											label: `${p.name} (${p.totalStock})`,
-										};
-									})}
-									noMargin={true}
-									placeholder="Search Name"
-								/>
-							</ZIndex>
+							<SelectField
+								value={prod}
+								setValue={cartHandler}
+								options={products?.map((p: any) => {
+									return {
+										...p,
+										value: p.productId,
+										label: `${p.name} (${p.totalStock})`,
+									};
+								})}
+								noMargin={true}
+								placeholder="Search Name"
+							/>
 						</div>
 						<div className="col-3">
 							<ScanBtn>
@@ -107,6 +145,7 @@ const ListView = () => {
 								<th>Quantity</th>
 								<th>Unit Price</th>
 								<th>Discount</th>
+								<th>VAT</th>
 								<th>Total</th>
 								<th></th>
 							</tr>
@@ -129,21 +168,8 @@ const ListView = () => {
 						<span>Total Amount</span>
 						<strong style={{ color: "#FFB500", fontSize: "2rem" }}>
 							{shopInfo?.currency}
-							{numberWithCommas(totalAmount - totalDiscount)}
+							{formatCurrency(totalAmount)}
 						</strong>
-					</div>
-					<div>
-						<span>Total Discount</span>
-						<strong>
-							{shopInfo?.currency}
-							{numberWithCommas(totalDiscount)}
-						</strong>
-					</div>
-					<div>
-						<span>Add VAT</span>
-						<select>
-							<option value={""}>0%</option>
-						</select>
 					</div>
 				</div>
 				<div className="button">

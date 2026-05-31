@@ -7,6 +7,7 @@ export const TableDiv = styled.table`
 	color: #000d33;
 	font-family: "Urbanist", "Jost", "Lucida Sans", sans-serif;
 	font-weight: 600;
+	font-size: 0.9rem;
 
 	thead th {
 		position: sticky;
@@ -120,6 +121,26 @@ export const TableDiv = styled.table`
 					&.active {
 						background: rgba(76, 175, 80, 0.13);
 						color: rgba(76, 175, 80, 1);
+					}
+				}
+			}
+			&.vat {
+				span {
+					background-color: #ffb900;
+					color: #fff;
+					text-transform: capitalize;
+					padding: 6px 10px;
+					border-radius: 5px;
+					font-weight: 600;
+				}
+				&.inclusive {
+					span {
+						background-color: #4caf50;
+					}
+				}
+				&.exclusive {
+					span {
+						background-color: #f44336;
 					}
 				}
 			}

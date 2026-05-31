@@ -7,14 +7,16 @@ import {
 	removeProductCart,
 	updateProductDiscount,
 	updateProductDiscountType,
+	updateProductPrice,
 	updateProductQuantity,
 } from "../../redux/cart/cartSlice";
-import { numberWithCommas } from "../../utils/currency";
+import { formatCurrency } from "../../utils/currency";
+import AmountField from "../AmountField";
 
 const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 	const dispatch = useAppDispatch();
 
-	const { shopInfo } = useAppSelector((state) => state.auth);
+	const { shopInfo, user } = useAppSelector((state) => state.auth);
 
 	const [value, setValue] = useState(`${item.quantity}`);
 	const [discount, setDiscount] = useState(`${item.discount || 0}`);
@@ -27,7 +29,7 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 					cartId,
 					productId: item.id,
 					quantity: val,
-				})
+				}),
 			);
 		}
 	};
@@ -44,9 +46,32 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 					cartId,
 					productId: item.id,
 					discount: val,
-				})
+				}),
 			);
 		}
+	};
+
+	const getTotal = (p: any) => {
+		let subTotal = p.price * p.quantity;
+
+		let discountAmount;
+		if (p.discountType === "currency") {
+			discountAmount = p.discount || 0;
+		} else {
+			discountAmount = subTotal * ((p.discount || 0) / 100);
+		}
+
+		let discountedTotal = subTotal - discountAmount;
+
+		let total;
+		if (p.vat === "exclusive") {
+			total =
+				discountedTotal *
+				(1 + Number(user?.business?.vatRate || 0) / 100);
+		} else {
+			total = discountedTotal;
+		}
+		return formatCurrency(total);
 	};
 
 	return (
@@ -73,8 +98,21 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 				</CartQty>
 			</td>
 			<td>
-				{shopInfo?.currency}
-				{numberWithCommas(item.price)}
+				<CartDiscount wide="true">
+					<AmountField
+						value={item.price}
+						noMargin={true}
+						setValue={(arg) => {
+							dispatch(
+								updateProductPrice({
+									cartId,
+									productId: item.id,
+									price: arg,
+								}),
+							);
+						}}
+					/>
+				</CartDiscount>
 			</td>
 			<td className="discount">
 				<CartDiscount>
@@ -88,7 +126,7 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 										item.discountType === "currency"
 											? true
 											: false,
-								})
+								}),
 							)
 						}
 					>
@@ -103,9 +141,12 @@ const EachCartList = ({ item, cartId }: { item: any; cartId: any }) => {
 					/>
 				</CartDiscount>
 			</td>
+			<td className={`vat ${item.vat}`}>
+				<span>Vat {item.vat}</span>
+			</td>
 			<td>
 				{shopInfo?.currency}
-				{numberWithCommas(item.price * item.quantity)}
+				{getTotal(item)}
 			</td>
 			<td className="button">
 				<button onClick={deleteHandler}>

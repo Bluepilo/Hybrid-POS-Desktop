@@ -5,6 +5,7 @@ export interface Product {
 	price: number;
 	discount?: number;
 	discountType?: string;
+	vat?: string;
 }
 
 export interface CartItemType {
@@ -14,8 +15,9 @@ export interface CartItemType {
 	discount: number;
 	products: Product[];
 	proceed?: boolean;
-	isSubdealer?: boolean;
+	customerTypeId?: string;
 	isAdvanced?: boolean;
+	isBiz?: boolean;
 }
 
 const cartItemType: CartItemType[] = [];

@@ -13,6 +13,7 @@ import { numberWithCommas } from "../../../utils/currency";
 import { displayError } from "../../../utils/display";
 import { insertSaleWithProducts } from "../../../utils/db/dbUpdate";
 import { increaseSync } from "../../../redux/app/appSlice";
+import dateFormat from "dateformat";
 
 const CompleteSale = ({ cartId }: { cartId: any }) => {
 	const dispatch = useAppDispatch();
@@ -34,10 +35,10 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 			(b.discountType === "currency"
 				? b.discount || 0
 				: ((b.discount || 0) / 100) * (b.price * b.quantity)),
-		0
+		0,
 	);
 
-	let customerType = cartInfo?.isSubdealer ? subdealers : customers;
+	let customerType = cartInfo?.isBiz ? subdealers : customers;
 
 	const [load, setLoad] = useState(false);
 	const [customerInfo, setCustomerInfo] = useState("");
@@ -47,12 +48,13 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 	const [list] = useState(
 		customerType?.map((val: any) => {
 			return { ...val, label: val.name, value: val.customerId };
-		})
+		}),
 	);
 	const [minAmount, setMinAmount] = useState(0);
 	const [received, setReceived] = useState("");
 
 	useEffect(() => {
+		setDate(dateFormat(new Date(), "yyyy-mm-dd'T'HH:mm"));
 		if (customerInfo) {
 			getMinAmountDue();
 		}
@@ -64,7 +66,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 				cartId,
 				value: false,
 				field: "proceed",
-			})
+			}),
 		);
 	};
 
@@ -74,7 +76,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 			{
 				title: "Cancel Transaction",
 				kind: "warning", // Optional: 'info', 'warning', 'error'
-			}
+			},
 		);
 		if (confirmed) {
 			dispatch(removeFromCart(cartId));
@@ -142,18 +144,27 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 		try {
 			let payload = {
 				actorId: customerInfo,
-				subdealerId: cartInfo?.isSubdealer ? customerInfo : "",
-				customerId: cartInfo?.isSubdealer ? "" : customerInfo,
-				isSubdealer: cartInfo?.isSubdealer ? true : false,
+				subdealerId: cartInfo?.isBiz ? customerInfo : "",
+				customerId: cartInfo?.isBiz ? "" : customerInfo,
+				isSubdealer: cartInfo?.isBiz ? true : false,
 				customerName: loadCustomerInfo().name,
 				customerEmail: loadCustomerInfo().email,
 				customerPhoneNo: loadCustomerInfo().phone,
-				products: cartInfo?.products,
-				isDeposit: false,
+				products: cartInfo?.products.map((p) => {
+					return {
+						id: p.id,
+						name: p.name,
+						quantity: p.quantity,
+						price: Number(p.price),
+						discount:
+							p.discountType === "currency"
+								? p.discount
+								: (Number(p.discount || 0) / 100) *
+									(p.price * p.quantity),
+					};
+				}),
 				comment: notes,
-				amountPaid: Number(received.replace(/,/g, "")),
-				discount: totalDiscount,
-				amountExpected: totalAmount - totalDiscount,
+				amountPaid: amountPaid || 0,
 				status: cartInfo?.isAdvanced ? "preorder" : "complete",
 				shopId: shopInfo?.id,
 				paymentMethodId: 3,
@@ -161,6 +172,9 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 				userId: user.userId,
 				syncStatus: "pending",
 				balance: balanceAfter(),
+				hybridAppLoggedAt: new Date().toISOString(),
+				transactionAt: new Date(date).toISOString(),
+				reference,
 			};
 			setLoad(true);
 			await insertSaleWithProducts(payload);
@@ -210,7 +224,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 						<InputField
 							value={date}
 							setValue={setDate}
-							inputType="date"
+							inputType="datetime-local"
 							label="Date"
 						/>
 						<InputField
@@ -274,7 +288,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 									<h5>
 										₦
 										{numberWithCommas(
-											loadCustomerInfo()?.balance
+											loadCustomerInfo()?.balance,
 										)}
 									</h5>
 								</div>
@@ -290,7 +304,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 								<h5>
 									₦
 									{numberWithCommas(
-										minAmount > 0 ? minAmount : 0
+										minAmount > 0 ? minAmount : 0,
 									)}
 								</h5>
 							</div>

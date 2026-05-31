@@ -23,7 +23,8 @@ const InputField = ({
 		| "email"
 		| "select"
 		| "tel"
-		| "date";
+		| "date"
+		| "datetime-local";
 	value: string;
 	setValue: (arg: string) => void;
 	label?: string;
@@ -59,7 +60,9 @@ const InputField = ({
 						)}
 						{!removeShowBtn && (
 							<span>
-								{inputType === "password" ? "Show" : "Hide"}{" "}
+								{inputType === "password"
+									? "Show"
+									: "Hide"}{" "}
 							</span>
 						)}
 					</button>

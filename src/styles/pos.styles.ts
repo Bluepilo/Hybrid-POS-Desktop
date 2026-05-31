@@ -11,30 +11,20 @@ export const PosTitleSearch = styled.div`
 			padding: 0;
 			font-weight: normal;
 			font-size: 1.8rem;
+			margin-right: 20px;
 		}
 
-		select {
-			border: 1px solid rgba(190, 190, 190, 1);
-			background: #fff;
-			outline: 0;
-			height: 35px;
-			margin: 0 10px;
-			box-shadow: none;
-			font-size: 1rem;
-			border-radius: 15px;
-			padding-left: 10px;
-			padding-right: 10px;
-			color: rgba(102, 102, 102, 1);
-			width: max-content;
-		}
-
-		span {
+		span.count {
 			background: rgba(215, 215, 215, 1);
 			color: #000d33;
 			padding: 2px 16px;
 			margin-left: 10px;
 			border-radius: 10px;
 			font-weight: 600;
+		}
+
+		.select-field {
+			min-width: 150px;
 		}
 	}
 `;
@@ -350,6 +340,7 @@ export const CartItem = styled.div`
 
 	.btm-details {
 		margin-top: 20px;
+		flex-wrap: wrap;
 		h6,
 		p {
 			margin: 0;
@@ -363,6 +354,40 @@ export const CartItem = styled.div`
 			font-weight: normal;
 			color: rgba(0, 13, 51, 1);
 			font-size: 1.2rem;
+		}
+
+		.totals {
+			input {
+				height: 35px !important;
+				padding-left: 0 !important;
+				color: rgba(0, 13, 51, 1);
+				font-weight: 600;
+				font-size: 1.1rem;
+				border: 0;
+				width: 100%;
+			}
+		}
+
+		.vat {
+			span {
+				background-color: #ffb900;
+				color: #fff;
+				text-transform: capitalize;
+				padding: 3px 6px;
+				border-radius: 5px;
+				font-weight: 600;
+				font-size: 0.7rem;
+			}
+			&.inclusive {
+				span {
+					background-color: #4caf50;
+				}
+			}
+			&.exclusive {
+				span {
+					background-color: #f44336;
+				}
+			}
 		}
 	}
 `;
@@ -422,15 +447,17 @@ export const CartQty = styled.div`
 	}
 `;
 
-export const CartDiscount = styled.div`
+export const CartDiscount = styled.div<{ wide?: string }>`
 	display: flex;
 	align-items: center;
 
 	input {
-		width: 50px;
-		border: 1px solid rgba(217, 219, 233, 1);
-		background: rgba(245, 245, 245, 1);
-		text-align: center;
+		width: ${(props) => (props.wide ? "100%" : "50px")} !important;
+		border: 1px solid
+			${(props) => (props.wide ? "#FFF" : "rgba(217, 219, 233, 1)")} !important;
+		background: ${(props) =>
+			props.wide ? "#FFF" : "rgba(245, 245, 245, 1)"} !important;
+		text-align: ${(props) => (props.wide ? "left" : "center")} !important;
 		height: 28px;
 		margin-left: 10px;
 		border-radius: 5px;

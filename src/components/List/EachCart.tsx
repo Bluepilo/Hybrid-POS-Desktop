@@ -1,16 +1,17 @@
 import { FaCaretDown, FaRegTrashAlt } from "react-icons/fa";
 import { CartDiscount, CartItem } from "../../styles/pos.styles";
 import { FaSquareMinus, FaSquarePlus } from "react-icons/fa6";
-import { numberWithCommas } from "../../utils/currency";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import {
 	removeProductCart,
 	updateProductDiscount,
 	updateProductDiscountType,
+	updateProductPrice,
 	updateProductQuantity,
 } from "../../redux/cart/cartSlice";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import AmountField from "../AmountField";
 
 const EachCart = ({ item }: { item: any }) => {
 	const params = useParams();
@@ -43,7 +44,7 @@ const EachCart = ({ item }: { item: any }) => {
 						cartId,
 						productId: item.id,
 						quantity: Number(val),
-					})
+					}),
 				);
 			}
 		}
@@ -57,7 +58,7 @@ const EachCart = ({ item }: { item: any }) => {
 					cartId,
 					productId: item.id,
 					discount: val,
-				})
+				}),
 			);
 		}
 	};
@@ -89,12 +90,24 @@ const EachCart = ({ item }: { item: any }) => {
 				</div>
 			</div>
 			<div className="btm-details">
-				<div>
+				<div className="totals">
 					<p>Total Unit Price</p>
-					<h6>
-						{shopInfo?.currency}
-						{numberWithCommas(item.price * item.quantity)}
-					</h6>
+					<AmountField
+						value={item.price}
+						setValue={(arg) =>
+							dispatch(
+								updateProductPrice({
+									cartId,
+									productId: item.id,
+									price: arg,
+								}),
+							)
+						}
+						noMargin={true}
+					/>
+				</div>
+				<div className={`vat ${item.vat}`}>
+					<span>Vat {item.vat}</span>
 				</div>
 				<CartDiscount>
 					<span className="em">Discount</span>
@@ -108,12 +121,14 @@ const EachCart = ({ item }: { item: any }) => {
 										item.discountType === "currency"
 											? true
 											: false,
-								})
+								}),
 							)
 						}
 					>
 						<span>
-							{item.discountType === "currency" ? "₦" : "%"}
+							{item.discountType === "currency"
+								? shopInfo?.currency
+								: "%"}
 						</span>
 						<FaCaretDown />
 					</button>

@@ -70,12 +70,33 @@ const Sales = () => {
 			const promises = salesVals.data.map(async (sale: any) => {
 				if (sale.syncStatus !== "success" && user.id == sale.userId) {
 					try {
-						await appService.makeSale({
-							...sale,
-							customerId: sale.actorId,
-							status: "complete",
-							isDeposit: false,
-						});
+						let payload = {
+							shopId: sale.shopId,
+							status: sale.status || "complete",
+							subdealerId: sale.isSubdealer ? sale.actorId : "",
+							customerId: !sale.isSubdealer ? sale.actorId : "",
+							paymentMethodId: sale.paymentMethodId,
+							amountPaid: sale.amountPaid,
+							transactionAt: sale.createdAt,
+							fileUrl: sale.fileUrl,
+							products: sale.products.map((p: any) => {
+								return {
+									id: p.productId,
+									name: p.name,
+									quantity: p.quantity,
+									price: Number(p.price),
+									discount:
+										p.discountType === "currency"
+											? p.discount
+											: (Number(p.discount || 0) / 100) *
+												(p.price * p.quantity),
+								};
+							}),
+							comment: sale.comment,
+							reference: sale.reference,
+							hybridAppLoggedAt: sale.createdAt,
+						};
+						await appService.makeSale(payload);
 						await updateSaleSyncStatus(sale.id, "success");
 						dispatch(reduceSync());
 					} catch (err) {

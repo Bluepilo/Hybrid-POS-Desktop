@@ -41,6 +41,9 @@ importers:
       react-bootstrap:
         specifier: ^2.10.10
         version: 2.10.10(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-currency-input-field:
+        specifier: ^4.0.5
+        version: 4.0.5(react@19.1.1)
       react-dom:
         specifier: ^19.1.0
         version: 19.1.1(react@19.1.1)
@@ -1016,6 +1019,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  react-currency-input-field@4.0.5:
+    resolution: {integrity: sha512-OnWbs0iw/vpjajDEWzFKNAOXBSuynRjTE6nBfa3mSxZP4QABqCxFiCjLn7FNDR6b4BCTp82MWN08Y+HuS9lRqg==}
+    peerDependencies:
+      react: ^16.9.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react-dom@19.1.1:
     resolution: {integrity: sha512-Dlq/5LAZgF0Gaz6yiqZCf6VCcZs1ghAJyrsu84Q/GT0gV+mCxbfmKNoGRKBYMJ8IEdGPqu49YWXD02GCknEDkw==}
@@ -2108,6 +2116,10 @@ snapshots:
       warning: 4.0.3
     optionalDependencies:
       '@types/react': 19.1.12
+
+  react-currency-input-field@4.0.5(react@19.1.1):
+    dependencies:
+      react: 19.1.1
 
   react-dom@19.1.1(react@19.1.1):
     dependencies:

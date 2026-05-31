@@ -32,14 +32,14 @@ const ImageView = () => {
 						item.name
 							.toLowerCase()
 							.includes(debouncedSearch.toLowerCase()) ||
-						item?.barcode?.includes(debouncedSearch)
+						item?.barcode?.includes(debouncedSearch),
 				);
 			} else {
 				return products;
 			}
 		} else {
 			let arr = products?.filter(
-				(a: any) => (!a.isService && a.totalStock !== 0) || a.isService
+				(a: any) => (!a.isService && a.totalStock !== 0) || a.isService,
 			);
 			if (debouncedSearch) {
 				return arr.filter(
@@ -47,7 +47,7 @@ const ImageView = () => {
 						item.name
 							.toLowerCase()
 							.includes(debouncedSearch.toLowerCase()) ||
-						item?.barcode?.includes(debouncedSearch)
+						item?.barcode?.includes(debouncedSearch),
 				);
 			} else {
 				return arr;

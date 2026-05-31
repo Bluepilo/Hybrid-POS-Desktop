@@ -42,7 +42,7 @@ export const fetchAllSales = async ({
         LEFT JOIN users u ON s.userId = u.userId
         ${whereSQL}
         `,
-		params
+		params,
 	);
 
 	const total = totalResult[0]?.total || 0;
@@ -76,7 +76,7 @@ export const fetchAllSales = async ({
         ORDER BY s.createdAt DESC
         LIMIT ? OFFSET ?
         `,
-		[...params, limit, offset]
+		[...params, limit, offset],
 	);
 
 	// Parse JSON products & remove null entries
@@ -132,7 +132,7 @@ export const getSalesProducts = async ({
     LEFT JOIN products p ON p.productId = sp.productId
     ${whereSQL}
     `,
-		params
+		params,
 	);
 
 	const total = totalResult[0]?.total || 0;
@@ -158,7 +158,7 @@ export const getSalesProducts = async ({
     ORDER BY sp.createdAt DESC
     LIMIT ? OFFSET ?
     `,
-		[...params, limit, offset]
+		[...params, limit, offset],
 	);
 
 	// 3️⃣ Format response
@@ -192,9 +192,8 @@ export const fetchProductsFromDB = async () => {
 	try {
 		const db = getDB();
 
-		// fetch all products
 		const result = await db.select(
-			"SELECT * FROM products ORDER BY name ASC"
+			"SELECT * FROM products ORDER BY name ASC",
 		);
 
 		return result;
@@ -208,14 +207,28 @@ export const fetchCustomersFromDB = async () => {
 	try {
 		const db = getDB();
 
-		// fetch all products
 		const result = await db.select(
-			"SELECT * FROM customers ORDER BY name ASC"
+			"SELECT * FROM customers ORDER BY name ASC",
 		);
 
 		return result;
 	} catch (err) {
-		console.error("Failed to fetch products from DB:", err);
+		console.error("Failed to fetch customers from DB:", err);
+		throw err;
+	}
+};
+
+export const fetchCustomerTypesFromDB = async () => {
+	try {
+		const db = getDB();
+
+		const result = await db.select(
+			"SELECT * FROM customerTypes ORDER BY name ASC",
+		);
+
+		return result;
+	} catch (err) {
+		console.error("Failed to fetch customerTypes from DB:", err);
 		throw err;
 	}
 };
@@ -242,7 +255,7 @@ export const getSaleByUniqueRef = async (hybridRef: string) => {
     WHERE s.hybridRef = ?
     LIMIT 1
     `,
-		[hybridRef]
+		[hybridRef],
 	);
 
 	if (saleRows.length === 0) return null;
@@ -262,7 +275,7 @@ export const getSaleByUniqueRef = async (hybridRef: string) => {
     LEFT JOIN products p ON p.productId = sp.productId
     WHERE sp.saleId = ?
     `,
-		[sale.id]
+		[sale.id],
 	);
 
 	return {

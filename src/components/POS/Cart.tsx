@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { updateCartField } from "../../redux/cart/cartSlice";
 import { CartDisplay, VatBtn } from "../../styles/pos.styles";
-import { numberWithCommas } from "../../utils/currency";
+import { formatCurrency } from "../../utils/currency";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import EachCart from "../List/EachCart";
 
@@ -10,7 +10,7 @@ const Cart = ({ products }: { products: any }) => {
 
 	const dispatch = useAppDispatch();
 
-	const { shopInfo } = useAppSelector((state) => state.auth);
+	const { shopInfo, user } = useAppSelector((state) => state.auth);
 
 	const proceedHandler = () => {
 		dispatch(
@@ -18,23 +18,28 @@ const Cart = ({ products }: { products: any }) => {
 				cartId: params?.tabId || "",
 				value: true,
 				field: "proceed",
-			})
+			}),
 		);
 	};
 
-	let totalAmount = products.reduce(
-		(a: any, b: any) => a + b.price * b.quantity,
-		0
-	);
+	const totalAmount = products.reduce((sum: any, item: any) => {
+		const subtotal = Number(item.price) * Number(item.quantity);
 
-	let totalDiscount = products.reduce(
-		(a: any, b: any) =>
-			a +
-			(b.discountType === "currency"
-				? b.discount || 0
-				: ((b.discount || 0) / 100) * (b.price * b.quantity)),
-		0
-	);
+		const discountAmount =
+			item.discountType === "currency"
+				? Number(item.discount || 0)
+				: subtotal * (Number(item.discount || 0) / 100);
+
+		const afterDiscount = subtotal - discountAmount;
+
+		const finalItemTotal =
+			item.vat === "exclusive"
+				? afterDiscount *
+					(1 + Number(user.business?.vatRate || 0) / 100)
+				: afterDiscount;
+
+		return sum + finalItemTotal;
+	}, 0);
 
 	return (
 		<CartDisplay>
@@ -45,38 +50,17 @@ const Cart = ({ products }: { products: any }) => {
 					))}
 				</div>
 				<div className="bttm-pos">
-					<div className="yellow">
-						<div>
-							<span>Total Discount</span>
-							<strong>
-								{shopInfo?.currency}
-								{numberWithCommas(totalDiscount)}
-							</strong>
-						</div>
-						<div>
-							<span>Total Amount Before Discount</span>
-							<strong>
-								{shopInfo?.currency}
-								{numberWithCommas(totalAmount)}
-							</strong>
-						</div>
-					</div>
 					<div className="dark">
 						<span>Total Amount</span>
 						<strong>
 							{shopInfo?.currency}
-							{numberWithCommas(totalAmount - totalDiscount)}
+							{formatCurrency(totalAmount)}
 						</strong>
 					</div>
 				</div>
 			</div>
 			<VatBtn>
-				<div>
-					<span>Add VAT</span>
-					<select>
-						<option value={""}>0%</option>
-					</select>
-				</div>
+				<div />
 				<button
 					onClick={proceedHandler}
 					disabled={products.length > 0 ? false : true}

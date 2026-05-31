@@ -2,12 +2,14 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
 	fetchProductsFromDB,
 	fetchCustomersFromDB,
+	fetchCustomerTypesFromDB,
 } from "../../utils/db/dbFetch";
 
 const initialState = {
 	products: [] as any,
 	customers: [] as any,
 	subdealers: [] as any,
+	customerTypes: [] as any,
 	syncCount: 0,
 };
 
@@ -24,6 +26,16 @@ export const loadCustomers = createAsyncThunk("app/customers", async (_) => {
 		return res;
 	} catch (error) {}
 });
+
+export const loadCustomerTypes = createAsyncThunk(
+	"app/customerTypes",
+	async (_) => {
+		try {
+			let res = await fetchCustomerTypesFromDB();
+			return res;
+		} catch (error) {}
+	},
+);
 
 export const appSlice = createSlice({
 	name: "auth",
@@ -43,11 +55,16 @@ export const appSlice = createSlice({
 		builder.addCase(loadCustomers.fulfilled, (state, action) => {
 			if (Array.isArray(action.payload)) {
 				state.customers = action.payload?.filter(
-					(f: any) => !f.isSubdealer
+					(f: any) => !f.isSubdealer,
 				);
 				state.subdealers = action.payload?.filter(
-					(f: any) => f.isSubdealer
+					(f: any) => f.isSubdealer,
 				);
+			}
+		});
+		builder.addCase(loadCustomerTypes.fulfilled, (state, action) => {
+			if (Array.isArray(action.payload)) {
+				state.customerTypes = action.payload;
 			}
 		});
 	},

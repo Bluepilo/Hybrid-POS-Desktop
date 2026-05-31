@@ -19,7 +19,7 @@ const SalesSummaryView = ({ list }: { list: any }) => {
 							<th>Customer</th>
 							<th>Transaction ID</th>
 							<th>Staff</th>
-							<th>Sales Amount</th>
+							<th>Amount Paid</th>
 							<th>Source</th>
 							<th>Sync Status</th>
 						</tr>
