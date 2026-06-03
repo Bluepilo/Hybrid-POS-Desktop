@@ -54,12 +54,8 @@ export const appSlice = createSlice({
 		});
 		builder.addCase(loadCustomers.fulfilled, (state, action) => {
 			if (Array.isArray(action.payload)) {
-				state.customers = action.payload?.filter(
-					(f: any) => !f.isSubdealer,
-				);
-				state.subdealers = action.payload?.filter(
-					(f: any) => f.isSubdealer,
-				);
+				state.customers = action.payload?.filter((f: any) => !f.isBiz);
+				state.subdealers = action.payload?.filter((f: any) => f.isBiz);
 			}
 		});
 		builder.addCase(loadCustomerTypes.fulfilled, (state, action) => {

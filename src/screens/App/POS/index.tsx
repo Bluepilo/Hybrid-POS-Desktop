@@ -16,6 +16,7 @@ import { syncDBShop } from "../../../utils/db/dbUpdate";
 import { Spinner } from "react-bootstrap";
 import { displayError } from "../../../utils/display";
 import SelectField from "../../../components/SelectField";
+import LoginModal from "../../../components/LoginModal";
 
 const POS = () => {
 	const params = useParams();
@@ -26,6 +27,7 @@ const POS = () => {
 
 	const [imageDisplay, setImageDisplay] = useState(true);
 	const [loadSync, setLoadSync] = useState(false);
+	const [openSession, setOpenSession] = useState(false);
 
 	const { cartItems } = useAppSelector((state) => state.cart);
 	const { shopInfo } = useAppSelector((state) => state.auth);
@@ -61,6 +63,12 @@ const POS = () => {
 			dispatch(loadProducts());
 		} catch (err) {
 			setLoadSync(false);
+			let message = displayError(err, false);
+			if (message?.includes("Session expired")) {
+				setOpenSession(true);
+			} else {
+				displayError(err, true);
+			}
 		}
 	};
 
@@ -217,6 +225,7 @@ const POS = () => {
 					</div>
 				</div>
 				{imageDisplay ? <ImageView /> : <ListView />}
+				<LoginModal open={openSession} toggleLogin={setOpenSession} />
 			</div>
 		)
 	) : (

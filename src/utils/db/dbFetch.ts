@@ -62,7 +62,9 @@ export const fetchAllSales = async ({
                         'productId', sp.productId,
                         'name', p.name,
                         'quantity', sp.quantity,
-                        'price', sp.price
+                        'price', sp.price,
+						'saleId', sp.saleId,
+						'discountType', sp.discountType
                     )
                 END
             ) AS products
@@ -148,6 +150,7 @@ export const getSalesProducts = async ({
       s.actorId,
       s.userId,
 	  s.syncStatus,
+	  s.uniqueRef,
       s.createdAt AS saleCreatedAt,
       c.name AS actorName
     FROM sales_products sp
@@ -176,6 +179,7 @@ export const getSalesProducts = async ({
 		createdAt: row.createdAt,
 		updatedAt: row.updatedAt,
 		syncStatus: row.syncStatus,
+		uniqueRef: row.uniqueRef,
 	}));
 
 	// 4️⃣ Return structured pagination response
@@ -248,7 +252,7 @@ export const getSaleByUniqueRef = async (hybridRef: string) => {
       c.phone AS actorPhone,
       c.balance AS actorBalance,
       c.creditLimit AS actorCreditLimit,
-      c.isSubdealer AS isSubdealer
+      c.isBiz AS isBiz
     FROM sales s
     LEFT JOIN customers c ON s.actorId = c.customerId
     LEFT JOIN users u ON s.userId = u.userId
@@ -270,7 +274,19 @@ export const getSaleByUniqueRef = async (hybridRef: string) => {
       sp.productId,
       p.name AS productName,
       sp.quantity,
-      sp.price
+      sp.price,
+	  sp.costPrice,
+	  sp.discountPerUnit,
+	  sp.grossAmount,
+	  sp.margin,
+	  sp.netAmount,
+	  sp.recievableAmount,
+	  sp.salesRevenue,
+	  sp.sellingPrice,
+	  sp.totalDiscount,
+	  sp.vatAmount,
+	  sp.vatRate,
+	  sp.vatType
     FROM sales_products sp
     LEFT JOIN products p ON p.productId = sp.productId
     WHERE sp.saleId = ?
@@ -288,11 +304,14 @@ export const getSaleByUniqueRef = async (hybridRef: string) => {
 		actualAmountPaid: sale.actualAmountPaid,
 		amountExpected: sale.amountExpected,
 		amountPaid: sale.amountPaid,
-		isSubdealer: sale.isSubdealer,
+		isSubdealer: sale.isBiz,
 		createdAt: sale.createdAt,
 		updatedAt: sale.updatedAt,
 		comment: sale.comment,
 		syncStatus: sale.syncStatus,
+		reference: sale.reference,
+		status: sale.status,
+		uniqueRef: sale.uniqueRef,
 		actor: {
 			id: sale.customerId,
 			name: sale.actorName,
@@ -302,12 +321,6 @@ export const getSaleByUniqueRef = async (hybridRef: string) => {
 			balance: sale.actorBalance,
 			creditLimit: sale.actorCreditLimit,
 		},
-		products: productRows.map((p) => ({
-			id: p.id,
-			productId: p.productId,
-			productName: p.productName,
-			quantity: p.quantity,
-			price: p.price,
-		})),
+		products: productRows,
 	};
 };

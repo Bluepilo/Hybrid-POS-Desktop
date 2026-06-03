@@ -144,8 +144,6 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 		try {
 			let payload = {
 				actorId: customerInfo,
-				subdealerId: cartInfo?.isBiz ? customerInfo : "",
-				customerId: cartInfo?.isBiz ? "" : customerInfo,
 				isSubdealer: cartInfo?.isBiz ? true : false,
 				customerName: loadCustomerInfo().name,
 				customerEmail: loadCustomerInfo().email,
@@ -161,6 +159,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 								? p.discount
 								: (Number(p.discount || 0) / 100) *
 									(p.price * p.quantity),
+						discountType: p.discountType,
 					};
 				}),
 				comment: notes,
@@ -170,9 +169,7 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 				paymentMethodId: 3,
 				hybridRef: cartId,
 				userId: user.userId,
-				syncStatus: "pending",
 				balance: balanceAfter(),
-				hybridAppLoggedAt: new Date().toISOString(),
 				transactionAt: new Date(date).toISOString(),
 				reference,
 			};
@@ -184,7 +181,6 @@ const CompleteSale = ({ cartId }: { cartId: any }) => {
 			setLoad(false);
 		} catch (err) {
 			setLoad(false);
-			console.log(err, "ERR");
 			displayError(err, true);
 		}
 	};

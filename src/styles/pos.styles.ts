@@ -26,6 +26,21 @@ export const PosTitleSearch = styled.div`
 		.select-field {
 			min-width: 150px;
 		}
+
+		select.select {
+			border: 1px solid rgba(190, 190, 190, 1);
+			background: #fff;
+			outline: 0;
+			height: 35px;
+			margin: 0 10px;
+			box-shadow: none;
+			font-size: 1rem;
+			border-radius: 15px;
+			padding-left: 10px;
+			padding-right: 10px;
+			color: rgba(102, 102, 102, 1);
+			width: max-content;
+		}
 	}
 `;
 

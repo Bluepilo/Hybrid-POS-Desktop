@@ -20,8 +20,6 @@ const Stocks = () => {
 		dispatch(loadProducts());
 	}, []);
 
-	console.log(products, "pp");
-
 	return (
 		<div className="d-flex flex-column h-100">
 			<PosTitleSearch className="mt-3">
@@ -29,7 +27,7 @@ const Stocks = () => {
 					<h1>Stocks</h1>
 				</div>
 			</PosTitleSearch>
-			<div className="row">
+			<div className="row align-items-center">
 				<div className="col-lg-4 col-8">
 					<StatsStyles>
 						<div className="stat-item">
@@ -42,45 +40,12 @@ const Stocks = () => {
 									{products?.reduce(
 										(a: any, b: any) =>
 											a + Number(b.totalStock),
-										0
+										0,
 									)}
 								</h6>
 							</div>
 						</div>
 					</StatsStyles>
-				</div>
-			</div>
-			<div className="row">
-				<div className="col-lg-1 col-md-3 col-4">
-					<InputField
-						inputType="select"
-						value={dateType}
-						setValue={setDateType}
-						placeholder="Category"
-						noMargin
-					/>
-				</div>
-				<div className="col-lg-1 col-md-3 col-4">
-					<InputField
-						inputType="select"
-						value={dateType}
-						setValue={setDateType}
-						placeholder="Brand"
-						noMargin
-					/>
-				</div>
-				<div className="col-lg-2 col-md-3 col-4 align-self-end">
-					<button
-						style={{
-							border: 0,
-							outline: 0,
-							background: "none",
-							color: "rgba(0, 128, 128, 1)",
-							textDecoration: "underline",
-						}}
-					>
-						Clear Filters
-					</button>
 				</div>
 				<div className="col-lg-4">
 					<InputField
@@ -92,6 +57,7 @@ const Stocks = () => {
 					/>
 				</div>
 			</div>
+			<div className="row"></div>
 			<TableArea>
 				<div className="table-responsive h-100">
 					<TableDiv className="table mb-0">

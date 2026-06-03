@@ -36,7 +36,7 @@ const SalesSummaryView = ({ list }: { list: any }) => {
 										to={`${li.hybridRef}`}
 										state={{ detail: li }}
 									>
-										{li.hybridRef}
+										{li.uniqueRef || li.hybridRef}
 									</Link>
 								</td>
 								<td>{li.userName}</td>

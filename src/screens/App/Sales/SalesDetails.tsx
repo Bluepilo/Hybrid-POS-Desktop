@@ -3,7 +3,6 @@ import DetailsList from "../../../components/Sales/DetailsList";
 import {
 	BtnAttach,
 	CardBox,
-	FlexBetween,
 	SalesDetailsStyles,
 	SalesInfo,
 	Status,
@@ -12,7 +11,6 @@ import {
 } from "../../../styles/basic.styles";
 import { FiDownload, FiRefreshCcw } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
-import { TableDiv } from "../../../styles/table.styles";
 import Button from "../../../components/Button";
 import { GrDocumentOutlook } from "react-icons/gr";
 import { useEffect, useState } from "react";
@@ -21,6 +19,8 @@ import { useAppSelector } from "../../../utils/hooks";
 import dateFormat from "dateformat";
 import { displayError } from "../../../utils/display";
 import { getSaleByUniqueRef } from "../../../utils/db/dbFetch";
+import UnsyncedSaleItems from "../../../components/Sales/UnsyncedSaleItems";
+import SyncedSaleItems from "../../../components/Sales/SyncedSaleItems";
 
 const SalesDetails = () => {
 	const navigate = useNavigate();
@@ -100,7 +100,7 @@ const SalesDetails = () => {
 									<strong>
 										{shopInfo?.currency}
 										{numberWithCommas(
-											details.actor.balance
+											details.actor.balance,
 										)}
 									</strong>
 								</div>
@@ -109,15 +109,15 @@ const SalesDetails = () => {
 									<strong>
 										{shopInfo?.currency}
 										{numberWithCommas(
-											details.actor.creditLimit
+											details.actor.creditLimit,
 										)}
 									</strong>
 								</div>
 							</div>
 						</SalesInfo>
 						<CardBox className="shadow-sm mt-3">
-							<h5>Sale {details.hybridRef?.toUpperCase()}</h5>
-							<Status>Paid</Status>
+							<h5>Sale {details.uniqueRef}</h5>
+							<Status>{details.status}</Status>
 							<div
 								className="row mt-3"
 								style={{ color: "#666", fontSize: "0.85rem" }}
@@ -128,13 +128,21 @@ const SalesDetails = () => {
 										<span className="ms-2">
 											{dateFormat(
 												details.createdAt,
-												"mmm dd, yyyy | h:MM TT"
+												"mmm dd, yyyy | h:MM TT",
 											)}
 										</span>
 									</div>
 									<div className="mt-1">
+										<strong>Hybrid Ref</strong>
+										<span className="ms-2">
+											{details.hybridRef}
+										</span>
+									</div>
+									<div className="mt-1">
 										<strong>Reference ID</strong>
-										<span className="ms-2">---</span>
+										<span className="ms-2">
+											{details.reference || "---"}
+										</span>
 									</div>
 									<div className="mt-1">
 										<strong>Logged By</strong>
@@ -159,101 +167,56 @@ const SalesDetails = () => {
 								<div className="col-lg-1" />
 							</div>
 							<div className="table-responsive h-100 mt-2">
-								<TableDiv className="table mb-0">
-									<thead>
-										<tr>
-											<th>Items Picked</th>
-											<th>Unit</th>
-											<th>Amount</th>
-										</tr>
-									</thead>
-									<tbody>
-										{details.products?.map((p: any) => (
-											<tr>
-												<td key={p.id}>
-													{p.productName}
-												</td>
-												<td>{p.quantity}</td>
-												<td>
-													{shopInfo?.currency}
-													{numberWithCommas(p.price)}
-												</td>
-											</tr>
-										))}
-									</tbody>
-									<tfoot>
-										<tr>
-											<td>Total</td>
-											<td>
-												{details.products?.reduce(
-													(a: any, b: any) =>
-														a + b.quantity,
-													0
-												)}
-											</td>
-											<td>
-												{shopInfo?.currency}
-												{numberWithCommas(
-													details.products?.reduce(
-														(a: any, b: any) =>
-															a + b.price,
-														0
-													)
-												)}
-											</td>
-										</tr>
-									</tfoot>
-								</TableDiv>
+								{details.products[0]?.costPrice ? (
+									<SyncedSaleItems data={details.products} />
+								) : (
+									<UnsyncedSaleItems
+										data={details.products}
+									/>
+								)}
 							</div>
 							<TotalBox className="mt-3">
-								<div>
-									<span>Discount Amount</span>
-									<strong>
-										{shopInfo?.currency}
-										{formatCurrency(details.discount)}
-									</strong>
-								</div>
-								<div>
-									<span>VAT Amount</span>
-									<strong>₦0.00</strong>
-								</div>
-								<div>
-									<span>Discounted Total Sales</span>
-									<strong>
-										{shopInfo?.currency}
-										{formatCurrency(details.amountExpected)}
-									</strong>
-								</div>
-								<div>
-									<span>Actual Amount Paid</span>
-									<strong>
-										{shopInfo?.currency}
-										{formatCurrency(
-											details.actualAmountPaid
-										)}
-									</strong>
-								</div>
+								{details.products[0]?.costPrice ? (
+									<>
+										<div>
+											<span>Gross Sales Amount</span>
+											<strong>
+												{shopInfo?.currency}
+												{formatCurrency(
+													details.products?.reduce(
+														(a: any, b: any) =>
+															a + b.grossAmount,
+														0,
+													),
+												)}
+											</strong>
+										</div>
+										<div>
+											<span>Account Receivables</span>
+											<strong>
+												{shopInfo?.currency}
+												{formatCurrency(
+													details.products?.reduce(
+														(a: any, b: any) =>
+															a +
+															b.recievableAmount,
+														0,
+													),
+												)}
+											</strong>
+										</div>
+									</>
+								) : (
+									<div>
+										<span>Amount Paid</span>
+										<strong>
+											{shopInfo?.currency}
+											{formatCurrency(details.amountPaid)}
+										</strong>
+									</div>
+								)}
 							</TotalBox>
-							<div className="col-lg-6 mt-3">
-								<FlexBetween
-									style={{
-										background: "#000",
-										padding: "10px",
-										color: "#FFF",
-										fontSize: "0.9rem",
-										borderRadius: "10px",
-									}}
-								>
-									<span>SMS</span>
-									<strong
-										style={{
-											color: "rgba(255, 199, 39, 1)",
-										}}
-									>
-										SMS NOT Sent
-									</strong>
-								</FlexBetween>
-							</div>
+
 							<BtnAttach>
 								<GrDocumentOutlook />
 								<span>View Attached Document</span>
@@ -288,46 +251,6 @@ const SalesDetails = () => {
 									/>
 								</div>
 							</div>
-							<p
-								style={{
-									color: "rgba(190, 190, 190, 1)",
-									fontSize: "0.8rem",
-									fontWeight: "bold",
-									margin: "0",
-								}}
-							>
-								Transaction History
-							</p>
-							<div className="table-responsive h-100 mt-2">
-								<TableDiv className="table mb-0">
-									<thead>
-										<tr>
-											<th>Amount</th>
-											<th>Type</th>
-											<th>Date Made</th>
-											<th>Made By</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>
-												{shopInfo?.currency}
-												{formatCurrency(
-													details.amountExpected
-												)}
-											</td>
-											<td>Sale</td>
-											<td>
-												{dateFormat(
-													details.createdAt,
-													"mmm dd, yyyy | h:MM TT"
-												)}
-											</td>
-											<td>{details.userName}</td>
-										</tr>
-									</tbody>
-								</TableDiv>
-							</div>
 							<SyncTable>
 								<div className={`head ${details.syncStatus}`}>
 									Sync {details.syncStatus} -{" "}
@@ -346,7 +269,7 @@ const SalesDetails = () => {
 											<b>Last attempt:</b>{" "}
 											{dateFormat(
 												details.updatedAt,
-												"mmm dd, yyyy | h:MM TT"
+												"mmm dd, yyyy | h:MM TT",
 											)}
 										</p>
 									</div>

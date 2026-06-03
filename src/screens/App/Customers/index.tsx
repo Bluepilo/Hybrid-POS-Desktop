@@ -32,7 +32,7 @@ const Customers = () => {
 			<PosTitleSearch className="mt-3">
 				<div className="title">
 					<h1>Customers</h1>
-					<span>{arrayToLoad().length}</span>
+					<span className="count">{arrayToLoad().length}</span>
 				</div>
 			</PosTitleSearch>
 			<CustomerFilter

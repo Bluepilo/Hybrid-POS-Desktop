@@ -9,41 +9,37 @@ export const insertSaleWithProducts = async (sale: any) => {
 		const insertSaleSQL = `
       INSERT INTO sales (
         shopId,
-        actualAmountPaid,
-        amountExpected,
         amountPaid,
         actorId,
         isSubdealer,
         hybridRef,
         userId,
-        syncStatus,
         comment,
-        discount,
         customerName,
         customerPhoneNo,
         customerEmail,
-        isDeposit,
-        paymentMethodId
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        paymentMethodId,
+		status,
+		reference,
+		transactionAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
 		const saleParams = [
 			sale.shopId,
 			Number(sale.amountPaid) || 0,
-			Number(sale.amountExpected) || 0,
-			Number(sale.amountPaid) || 0,
 			sale.actorId,
 			sale.isSubdealer ? 1 : 0,
 			sale.hybridRef ?? "",
 			sale.userId,
-			sale.syncStatus ?? "",
 			sale.comment ?? "",
-			Number(sale.discount) || 0,
 			sale.customerName ?? "",
 			sale.customerPhoneNo ?? "",
 			sale.customerEmail ?? "",
-			sale.isDeposit ? 1 : 0,
 			sale.paymentMethodId ?? 0,
+			sale.status,
+			sale.reference ?? "",
+			sale.transactionAt,
 		];
 
 		await db.execute(insertSaleSQL, saleParams);
@@ -52,6 +48,15 @@ export const insertSaleWithProducts = async (sale: any) => {
 		const row = await db.select<{ id: number }[]>(
 			"SELECT last_insert_rowid() as id;",
 		);
+
+		const rows = await db.select<{ id: number }[]>(
+			`SELECT id FROM sales WHERE hybridRef = ?`,
+			[sale.hybridRef],
+		);
+
+		console.log("last_insert_rowid result", row);
+		console.log("rows_check", rows);
+
 		const saleId = row[0]?.id;
 
 		if (!saleId) throw new Error("Failed to retrieve saleId");
@@ -70,8 +75,9 @@ export const insertSaleWithProducts = async (sale: any) => {
           saleId,
           productId,
           quantity,
-          price
-        ) VALUES (?, ?, ?, ?);
+          price,
+		  discountType
+        ) VALUES (?, ?, ?, ?, ?);
       `;
 
 			for (const p of sale.products) {
@@ -80,6 +86,7 @@ export const insertSaleWithProducts = async (sale: any) => {
 					p.id,
 					Number(p.quantity) || 0,
 					Number(p.price) || 0,
+					p.discountType,
 				]);
 			}
 		}
@@ -98,6 +105,95 @@ export const insertSaleWithProducts = async (sale: any) => {
 	} catch (err) {
 		console.error("Error inserting sale:", err);
 		throw err;
+	}
+};
+
+export const syncSaleFromServer = async (sale: any, hybridRef: string) => {
+	const db = getDB();
+	if (!db) return;
+
+	try {
+		// Update sale record
+		await db.execute(
+			`
+			UPDATE sales
+			SET
+				actualAmountPaid = ?,
+				amountExpected = ?,
+				uniqueRef = ?,
+				discount = ?,
+				syncStatus = ?,
+				updatedAt = CURRENT_TIMESTAMP
+			WHERE hybridRef = ?
+			`,
+			[
+				sale.actualAmountPaid,
+				sale.amountExpected,
+				sale.uniqueRef,
+				sale.discount,
+				"success",
+				hybridRef,
+			],
+		);
+
+		// Get local sale id
+		const rows = await db.select<{ id: number }[]>(
+			`SELECT id FROM sales WHERE hybridRef = ?`,
+			[hybridRef],
+		);
+
+		const saleId = rows[0]?.id;
+
+		if (!saleId) {
+			throw new Error(`Sale not found for ${hybridRef}`);
+		}
+
+		console.log(sale.breakdown, "BReakDOWN");
+		console.log(saleId, "SaleID");
+
+		// Update products
+		for (const product of sale.breakdown ?? []) {
+			await db.execute(
+				`
+				UPDATE sales_products
+				SET
+					costPrice = ?,
+					discountPerUnit = ?,
+					grossAmount = ?,
+					margin = ?,
+					netAmount = ?,
+					recievableAmount = ?,
+					salesRevenue = ?,
+					sellingPrice = ?,
+					totalDiscount = ?,
+					vatAmount = ?,
+					vatRate = ?,
+					vatType = ?,
+					updatedAt = CURRENT_TIMESTAMP
+				WHERE saleId = ?
+				AND productId = ?
+				`,
+				[
+					product.costPrice,
+					product.discountPerUnit,
+					product.grossAmount,
+					product.margin,
+					product.netAmount,
+					product.recievableAmount,
+					product.salesRevenue,
+					product.sellingPrice,
+					product.totalDiscount,
+					product.vatAmount,
+					product.vatRate,
+					product.vatType,
+					saleId,
+					product.id,
+				],
+			);
+		}
+	} catch (error) {
+		console.error("Error syncing sale:", error);
+		throw error;
 	}
 };
 
@@ -139,7 +235,9 @@ export const getSales = async ({
           'id', sp.id,
           'productId', sp.productId,
           'quantity', sp.quantity,
-          'price', sp.price
+          'price', sp.price,
+		  'saleId', sp.saleId,
+		  'discountType', sp.discountType
         )
       ) AS products
     FROM sales s
@@ -279,10 +377,12 @@ export const syncDBShop = async (shopId: string) => {
 		await upsertProducts(res.rows);
 	}
 	let resC = await appService.fetchCustomers();
+	console.log(resC, "RESC");
 	if (resC?.rows?.length > 0) {
 		await upsertCustomers(resC.rows, false);
 	}
 	let resS = await appService.fetchSubdealers();
+	console.log(resS, "RESS");
 	if (resS?.rows?.length > 0) {
 		await upsertCustomers(resS.rows, true);
 	}
@@ -295,6 +395,25 @@ export const syncDBShop = async (shopId: string) => {
 };
 
 export const updateSaleSyncStatus = async (
+	saleId: number,
+	syncStatus: string,
+	reason?: string,
+) => {
+	const db = getDB();
+	try {
+		await db.execute(
+			`UPDATE sales
+			 SET syncStatus = ?, failReason = ?
+			 WHERE id = ?`,
+			[syncStatus, reason || null, saleId],
+		);
+	} catch (err) {
+		console.error("Error updating syncStatus:", err);
+		throw err;
+	}
+};
+
+export const updateSaleInfo = async (
 	saleId: number,
 	syncStatus: string,
 	reason?: string,

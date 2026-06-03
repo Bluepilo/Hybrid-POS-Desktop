@@ -29,6 +29,13 @@ const makeSale = async (obj: any) => {
 	return data.data;
 };
 
+const fetchSaleDetails = async (ref: string) => {
+	const { data } = await apiRequest("baseUrl").get(
+		`/inventory/sale/view/${ref}`,
+	);
+	return data.data;
+};
+
 const customerTypes = async () => {
 	const { data } = await apiRequest("baseUrl").get(
 		`/inventory/sale/customer-types-by-category`,
@@ -42,6 +49,7 @@ const appService = {
 	fetchSubdealers,
 	customerTypes,
 	makeSale,
+	fetchSaleDetails,
 };
 
 export default appService;

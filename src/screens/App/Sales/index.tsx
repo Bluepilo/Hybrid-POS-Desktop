@@ -7,7 +7,10 @@ import SalesSummaryView from "../../../components/Sales/SalesSummaryView";
 import { fetchAllSales, getSalesProducts } from "../../../utils/db/dbFetch";
 import SalesDetailsView from "../../../components/Sales/SalesDetailsView";
 import appService from "../../../redux/app/appService";
-import { updateSaleSyncStatus } from "../../../utils/db/dbUpdate";
+import {
+	syncSaleFromServer,
+	updateSaleSyncStatus,
+} from "../../../utils/db/dbUpdate";
 import { displayError } from "../../../utils/display";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { reduceSync } from "../../../redux/app/appSlice";
@@ -76,7 +79,7 @@ const Sales = () => {
 							subdealerId: sale.isSubdealer ? sale.actorId : "",
 							customerId: !sale.isSubdealer ? sale.actorId : "",
 							paymentMethodId: sale.paymentMethodId,
-							amountPaid: sale.amountPaid,
+							amountPaid: 2500000,
 							transactionAt: sale.createdAt,
 							fileUrl: sale.fileUrl,
 							products: sale.products.map((p: any) => {
@@ -96,9 +99,34 @@ const Sales = () => {
 							reference: sale.reference,
 							hybridAppLoggedAt: sale.createdAt,
 						};
-						await appService.makeSale(payload);
-						await updateSaleSyncStatus(sale.id, "success");
-						dispatch(reduceSync());
+						if (payload.products.length > 0) {
+							let res = await appService.makeSale(payload);
+							if (res?.uniqueRef) {
+								let saleDetails =
+									await appService.fetchSaleDetails(
+										res.uniqueRef,
+									);
+								if (saleDetails.uniqueRef) {
+									await syncSaleFromServer(
+										saleDetails,
+										sale.hybridRef,
+									);
+								}
+							} else {
+								await updateSaleSyncStatus(
+									sale.id,
+									"success",
+									"",
+								);
+							}
+							dispatch(reduceSync());
+						} else {
+							await updateSaleSyncStatus(
+								sale.id,
+								"failed",
+								"No product attached.",
+							);
+						}
 					} catch (err) {
 						let msg = displayError(err, false);
 						await updateSaleSyncStatus(sale.id, "failed", msg);
@@ -126,10 +154,11 @@ const Sales = () => {
 			<PosTitleSearch className="mt-3">
 				<div className="title">
 					<h1>Sales Record</h1>
-					<span>
+					<span className="count">
 						{viewType === "details" ? dlist?.total : vlist?.total}
 					</span>
 					<select
+						className="select"
 						value={viewType}
 						onChange={(e) => setViewType(e.target.value)}
 					>

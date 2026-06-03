@@ -36,7 +36,7 @@ const SalesDetailsView = ({ list }: { list: any }) => {
 										to={`${li.saleRef}`}
 										state={{ detail: li }}
 									>
-										{li.saleRef}
+										{li.uniqueRef || li.salesRef}
 									</Link>
 								</td>
 								<td>{li.actorName}</td>
